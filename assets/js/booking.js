@@ -322,6 +322,31 @@
     ["street", "city", "zip"].forEach(function (f) { if ($(f).value) setError(f, null); });
     closeList();
     $("unit").focus();
+    if (r.guessedNumber) fixZip(r);
+  }
+
+  // When OpenStreetMap only matched the street, its ZIP can belong to another stretch of that street.
+  // The US Census geocoder knows address ranges, so ask it for the exact ZIP (JSONP: it has no CORS).
+  var zipSeq = 0;
+  function fixZip(r) {
+    var seq = ++zipSeq, cb = "dgbZip" + Date.now(), done = false;
+    var s = document.createElement("script");
+    function cleanup() { done = true; try { delete window[cb]; } catch (e) { window[cb] = undefined; } s.remove(); }
+    window[cb] = function (data) {
+      if (done) return;
+      cleanup();
+      var m = data && data.result && data.result.addressMatches && data.result.addressMatches[0];
+      var zip = m && m.addressComponents && m.addressComponents.zip;
+      // Only apply it if the person hasn't picked another address or edited the ZIP since.
+      if (!zip || seq !== zipSeq || street.value !== r.line1 || $("zip").value !== r.zip) return;
+      $("zip").value = zip;
+      $("lat").value = m.coordinates.y; $("lon").value = m.coordinates.x;
+    };
+    s.src = "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?benchmark=Public_AR_Current&format=jsonp&callback=" + cb +
+      "&address=" + encodeURIComponent(r.line1 + ", " + r.city + ", " + (r.state || "CA"));
+    s.onerror = cleanup;
+    setTimeout(function () { if (!done) cleanup(); }, 8000);
+    document.head.appendChild(s);
   }
   function searchAddress(q) {
     if (addrAbort) addrAbort.abort();
@@ -333,19 +358,24 @@
       "&q=" + encodeURIComponent(q);
     fetch(url, addrAbort ? { signal: addrAbort.signal } : {}).then(function (r) { return r.json(); }).then(function (data) {
       var seen = {};
+      // OpenStreetMap often knows the street but not the house number. Keep the number the person typed.
+      var typed = q.match(/^\s*(\d+[A-Za-z]?(?:-\d+)?)\s+\S/);
+      var typedNum = typed ? typed[1] : "";
       addrResults = (data.features || []).map(function (f) {
         var p = f.properties || {};
         if (p.countrycode && p.countrycode !== "US") return null;
         var road = p.street || (p.type === "street" ? p.name : "");
         if (!road) return null;
-        var line1 = (p.housenumber ? p.housenumber + " " : "") + road;
+        if (!p.housenumber && typedNum && p.type !== "street") return null;   // some other building on a different street
+        var num = p.housenumber || typedNum;
+        var line1 = (num ? num + " " : "") + road;
         var st = STATES[p.state] || p.state || "";
         var city = p.city || p.town || p.village || p.district || p.county || "";
         var zip = (p.postcode || "").slice(0, 5);
         var key = line1 + city;
         if (seen[key]) return null;
         seen[key] = true;
-        return { line1: line1, line2: [city, [st, zip].join(" ").trim()].filter(Boolean).join(", "),
+        return { guessedNumber: !p.housenumber && !!typedNum, line1: line1, line2: [city, [st, p.housenumber || !typedNum ? zip : ""].join(" ").trim()].filter(Boolean).join(", "),
           city: city, state: st, zip: zip, lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0] };
       }).filter(Boolean);
       active = -1;

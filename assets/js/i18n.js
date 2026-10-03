@@ -103,7 +103,6 @@
     "f.both": "Los dos",
     "f.interest": "¿Qué le interesa? (opcional)",
     "f.full": "Remodelación completa",
-    "f.finChip": "Financiamiento",
     "f.when": "Escoja el día y la hora",
     "f.whenHelp": "Visitamos de domingo a jueves. Los días llenos aparecen en gris.",
     "cal.prev": "Mes anterior",
