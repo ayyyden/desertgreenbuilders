@@ -8,7 +8,7 @@
                    advertising, including this website. Leave "" to hide it.
 */
 window.DGB_CONFIG = {
-  bookingEndpoint: "",
+  bookingEndpoint: "https://script.google.com/macros/s/AKfycbwwPkux1ULLpyjN87uY0e3zLwwYHJ0dqjek4T62r40kQLDEggdWbmibJd8_yAWYW-DN/exec",
   licenseNumber: "1148568",
   phoneE164: "+17605482781",
   phoneDisplay: "(760) 548-2781",
