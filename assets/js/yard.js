@@ -195,20 +195,37 @@ window.DGBYard = (function () {
     el("polygon", { points: pts([P(SW.x0, SW.h, SW.z), P(SW.x1, SW.h, SW.z), P(SW.x1, SW.h, SW.z + SW.d), P(SW.x0, SW.h, SW.z + SW.d)]), fill: C.seatTop }, seat);
     el("polygon", { points: pts([P(SW.x0, 0, SW.z), P(SW.x1, 0, SW.z), P(SW.x1, SW.h, SW.z), P(SW.x0, SW.h, SW.z)]), fill: C.seat }, seat);
 
+    // Fire pit: a raised stone ring on the patio, flames rising out of the bowl, a warm glow underneath.
     var pitZ = 12.5, pc = P(4.4, 0.12, pitZ), ps = S(pitZ);
-    var ryF = (P(0, 0, pitZ - 0.9)[1] - P(0, 0, pitZ + 0.9)[1]) / 2;
+    var PR = 0.95 * ps;                                              // ring radius on screen
+    var RY = (P(0, 0, pitZ - 0.95)[1] - P(0, 0, pitZ + 0.95)[1]) / 2;  // same radius, foreshortened
+    var rimH = 0.42 * ps, top = [pc[0], pc[1] - rimH], inR = 0.7;
+    function ring(cx, cy, rx, ry) { return "M" + (cx - rx).toFixed(1) + "," + cy.toFixed(1) + " A" + rx.toFixed(1) + "," + ry.toFixed(1) + " 0 1 0 " + (cx + rx).toFixed(1) + "," + cy.toFixed(1) + " A" + rx.toFixed(1) + "," + ry.toFixed(1) + " 0 1 0 " + (cx - rx).toFixed(1) + "," + cy.toFixed(1) + " Z"; }
     var pit = el("g", { opacity: 0 }, g.pit);
-    el("ellipse", { cx: pc[0], cy: pc[1] + ryF * 0.25, rx: ps * 1.0, ry: ryF * 1.1, fill: C.stoneDark }, pit);
-    el("ellipse", { cx: pc[0], cy: pc[1], rx: ps * 1.0, ry: ryF * 1.1, fill: C.stone }, pit);
-    el("ellipse", { cx: pc[0], cy: pc[1], rx: ps * 0.68, ry: ryF * 0.72, fill: C.pit }, pit);
-    var flames = el("g", { opacity: 0 }, g.pit);
-    var fireOrigin = pc[0].toFixed(1) + "px " + pc[1].toFixed(1) + "px";
-    [[-0.28, 0.75, C.fire], [0.22, 0.9, C.fire], [-0.02, 1.25, C.fire], [-0.02, 0.75, C.fire2]].forEach(function (f) {
-      var fx = pc[0] + f[0] * ps, fh = f[1] * ps, fw = 0.32 * ps;
-      el("path", { d: "M" + (fx - fw).toFixed(1) + "," + pc[1].toFixed(1) +
-        " Q" + (fx - fw).toFixed(1) + "," + (pc[1] - fh * 0.6).toFixed(1) + " " + fx.toFixed(1) + "," + (pc[1] - fh).toFixed(1) +
-        " Q" + (fx + fw).toFixed(1) + "," + (pc[1] - fh * 0.6).toFixed(1) + " " + (fx + fw).toFixed(1) + "," + pc[1].toFixed(1) + " Z", fill: f[2] }, flames);
+    var glow = el("ellipse", { cx: pc[0], cy: pc[1], rx: PR * 1.9, ry: RY * 1.9, fill: C.fire2, opacity: 0 }, pit);
+    el("path", { d: ring(pc[0], pc[1], PR, RY), fill: C.stoneDark }, pit);                              // base
+    el("rect", { x: pc[0] - PR, y: top[1], width: 2 * PR, height: rimH, fill: C.stoneDark }, pit);       // side wall
+    for (var sb = -0.75; sb <= 0.76; sb += 0.375) {                                                    // stone joints
+      var jx = pc[0] + sb * PR, jy = pc[1] + RY * Math.sqrt(1 - sb * sb);
+      el("line", { x1: jx.toFixed(1), y1: (jy - rimH).toFixed(1), x2: jx.toFixed(1), y2: jy.toFixed(1), stroke: "#4E4C48", "stroke-width": Math.max(0.8, 0.04 * ps) }, pit);
+    }
+    el("path", { d: ring(top[0], top[1], PR, RY), fill: C.stone }, pit);                               // rim top
+    el("path", { d: ring(top[0], top[1], PR * inR, RY * inR), fill: C.pit }, pit);                     // bowl
+    var flames = el("g", { opacity: 0 }, pit);
+    var fireBase = top[1] + RY * inR * 0.35;
+    [[-0.3, 0.8, 0.2, C.fire], [0.3, 0.72, 0.2, C.fire], [0, 1.35, 0.34, C.fire], [-0.05, 0.85, 0.2, "#F7A531"], [0.06, 0.55, 0.13, C.fire2]].forEach(function (f) {
+      var fx = top[0] + f[0] * PR, fh = f[1] * ps, fw = f[2] * ps, by = fireBase;
+      var flame = el("path", { d: "M" + (fx - fw).toFixed(1) + "," + by.toFixed(1) +
+        " C" + (fx - fw).toFixed(1) + "," + (by - fh * 0.45).toFixed(1) + " " + (fx - fw * 0.15).toFixed(1) + "," + (by - fh * 0.7).toFixed(1) + " " + fx.toFixed(1) + "," + (by - fh).toFixed(1) +
+        " C" + (fx + fw * 0.15).toFixed(1) + "," + (by - fh * 0.7).toFixed(1) + " " + (fx + fw).toFixed(1) + "," + (by - fh * 0.45).toFixed(1) + " " + (fx + fw).toFixed(1) + "," + by.toFixed(1) +
+        " Q" + fx.toFixed(1) + "," + (by + fw * 0.5).toFixed(1) + " " + (fx - fw).toFixed(1) + "," + by.toFixed(1) + " Z", fill: f[3] }, flames);
+      flame._origin = fx.toFixed(1) + " " + by.toFixed(1);                // flicker around the flame's own base
     });
+    // front lip of the rim, drawn over the bottom of the flames so they sit inside the bowl
+    el("path", { d: "M" + (top[0] - PR).toFixed(1) + "," + top[1].toFixed(1) +
+      " A" + PR.toFixed(1) + "," + RY.toFixed(1) + " 0 0 0 " + (top[0] + PR).toFixed(1) + "," + top[1].toFixed(1) +
+      " L" + (top[0] + PR * inR).toFixed(1) + "," + top[1].toFixed(1) +
+      " A" + (PR * inR).toFixed(1) + "," + (RY * inR).toFixed(1) + " 0 0 1 " + (top[0] - PR * inR).toFixed(1) + "," + top[1].toFixed(1) + " Z", fill: C.stone }, pit);
 
     /* ---------- Paver walkway ---------- */
     var PATH = { x0: -1.4, x1: 1.4, z0: Math.max(LOT.z0, zVisible - 0.5), z1: PAT.z0 };
@@ -355,6 +372,7 @@ window.DGBYard = (function () {
       .fromTo(pit, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.2, ease: "power2.out" }, 5.2)
       .fromTo(plants, { scale: 0, transformOrigin: "50% 100%" }, { scale: 1, duration: 0.25, ease: "back.out(1.8)", stagger: 0.07 }, 5.3)
       .to(flames, { opacity: 1, duration: 0.15 }, 5.75)
+      .to(glow, { opacity: 0.28, duration: 0.25 }, 5.75)
       .to(sun, { attr: { fill: "#F7B733" }, duration: 0.6 }, 5.3);
 
     tl.addLabel("s7", 6).to({}, { duration: 1 }, 6);
@@ -362,8 +380,13 @@ window.DGBYard = (function () {
     return {
       tl: tl,
       flicker: function () {
-        return gsap.to(flames.children, { scaleY: 0.82, transformOrigin: fireOrigin, duration: 0.28, ease: "sine.inOut",
-          repeat: -1, yoyo: true, delay: function (n) { return n * 0.09; } });
+        var tw = Array.prototype.map.call(flames.children, function (f, n) {
+          return gsap.fromTo(f, { scaleY: 1, scaleX: 1 }, { scaleY: 0.78 + (n % 3) * 0.05, scaleX: 1.06, svgOrigin: f._origin,
+            duration: 0.22 + (n % 3) * 0.07, ease: "sine.inOut", repeat: -1, yoyo: true, delay: n * 0.06 });
+        });
+        tw.push(gsap.to(glow, { opacity: 0.18, duration: 0.5, ease: "sine.inOut", repeat: -1, yoyo: true }));
+        // one handle for main.js: kill() stops every flame and puts them back at full size
+        return { kill: function () { tw.forEach(function (t) { t.kill(); }); gsap.set(flames.children, { scaleX: 1, scaleY: 1 }); } };
       }
     };
   }
