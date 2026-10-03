@@ -56,7 +56,13 @@ button { font: inherit; }
 .skip-link:focus { top: 12px; }
 
 .wrap { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); }
-@media (min-width: 900px) { :root { --gutter: 40px; --header-h: 76px; } }
+@media (min-width: 900px) {
+  :root {
+    --gutter: 40px; --header-h: 76px;
+    --copy-left: max(var(--gutter), calc((100vw - var(--maxw)) / 2 + var(--gutter)));
+    --copy-w: min(34rem, calc(54vw - var(--copy-left)));
+  }
+}
 
 /* ---------- Buttons ---------- */
 .btn {
@@ -158,7 +164,7 @@ button { font: inherit; }
 }
 @media (min-width: 900px) {
   .build__copy { padding-top: calc(var(--header-h) + 36px); }
-  .hero { max-width: 36rem; margin: 0; padding: 30px 34px 28px; border-radius: 22px; background: rgba(255, 255, 255, .88); }
+  .hero { max-width: var(--copy-w); margin: 0; padding: 30px 34px 28px; border-radius: 22px; background: rgba(255, 255, 255, .88); }
   .hero__title { font-size: clamp(3rem, 4.6vw, 4.4rem); }
   .hero__sub { font-size: 1.18rem; margin-top: 18px; }
   .hero__actions { margin-top: 24px; }
@@ -173,8 +179,12 @@ button { font: inherit; }
 .caption p { margin-top: 10px; font-size: 1.08rem; font-weight: 550; max-width: 26rem; }
 .caption .btn { margin-top: 18px; }
 @media (min-width: 900px) {
-  .captions { top: calc(var(--header-h) + 40px); left: max(var(--gutter), calc((100vw - var(--maxw)) / 2 + var(--gutter))); }
-  .caption p { font-size: 1.25rem; }
+  /* On wide screens the house starts a little past the middle of the screen, so the text column
+     stops at 54% of the width (minus the page margin) and never runs into it. */
+  .captions { top: calc(var(--header-h) + 40px); left: var(--gutter); right: auto; width: var(--copy-w); }
+  .caption { max-width: none; }
+  .caption h2 { font-size: clamp(2.4rem, 4.2vw, 4rem); }
+  .caption p { font-size: 1.2rem; }
 }
 
 .build__progress { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: rgba(52, 53, 60, .12); display: none; }
