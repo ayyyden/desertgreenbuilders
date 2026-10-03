@@ -643,7 +643,19 @@
     });
   });
 
+  // Meta Pixel "Lead": only for a booking the server accepted, at most once per page load.
+  // The eventID lets Meta drop a repeat of the same submission. Skipped in the local demo.
+  var leadTracked = false;
+  function trackLead() {
+    if (leadTracked || DEMO || typeof window.fbq !== "function") return;
+    leadTracked = true;
+    try {
+      window.fbq("track", "Lead", {}, { eventID: "dgb-lead-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8) });
+    } catch (e) { /* tracking must never break the booking */ }
+  }
+
   function done(p) {
+    trackLead();
     state.booked = { date: p.date, time: p.time };
     renderSuccess();
     form.hidden = true;
