@@ -263,6 +263,77 @@ button { font: inherit; }
       #D9C8A6 64.5% 100%);
 }
 
+/* ---------- Our work (before / after) ---------- */
+.work { background: var(--char); color: var(--white); }
+.work .section__lede { color: rgba(255, 255, 255, .78); }
+.work-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 48px; }
+@media (min-width: 760px) { .work-list { grid-template-columns: repeat(2, 1fr); gap: 48px 32px; } }
+@media (min-width: 1100px) { .work-list { grid-template-columns: repeat(3, 1fr); } }
+
+.ba {
+  --pos: 50%;
+  position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 16px;
+  background: #4A4B52; cursor: ew-resize; touch-action: pan-y; user-select: none; -webkit-user-select: none;
+}
+.ba__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; -webkit-user-drag: none; }
+.ba__before { position: absolute; inset: 0; clip-path: inset(0 calc(100% - var(--pos)) 0 0); }
+.ba__tag {
+  position: absolute; top: 12px; padding: 5px 11px; border-radius: 999px; pointer-events: none;
+  font-size: 0.86rem; font-weight: 750; line-height: 1.1;
+}
+.ba__tag--before { left: 12px; background: rgba(52, 53, 60, .82); color: var(--white); }
+.ba__tag--after { right: 12px; background: var(--sun); color: var(--char); }
+.ba__handle {
+  position: absolute; top: 0; bottom: 0; left: var(--pos); width: 48px; margin-left: -24px;
+  display: flex; justify-content: center; outline: none;
+}
+.ba__handle::before { content: ""; width: 3px; height: 100%; background: var(--white); box-shadow: 0 0 0 1px rgba(0, 0, 0, .18); }
+.ba__handle span {
+  position: absolute; top: 50%; width: 48px; height: 48px; margin-top: -24px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--white); color: var(--char);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .3); transition: transform .15s ease;
+}
+.ba__handle svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.ba.is-dragging .ba__handle span { transform: scale(1.08); }
+.ba__handle:focus-visible span { outline: 3px solid var(--sun); outline-offset: 3px; }
+
+.proj__views { display: flex; gap: 8px; margin-top: 12px; }
+.proj__views button {
+  width: 44px; height: 44px; border-radius: 10px; cursor: pointer; font-weight: 750;
+  border: 2px solid rgba(255, 255, 255, .35); background: transparent; color: var(--white);
+}
+.proj__views button:hover { border-color: var(--white); }
+.proj__views button[aria-pressed="true"] { background: var(--white); border-color: var(--white); color: var(--char); }
+.proj__views button:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+.proj h3 { margin-top: 16px; font-size: 1.4rem; font-stretch: 110%; }
+.proj > p { margin-top: 6px; color: rgba(255, 255, 255, .8); }
+.proj__tags { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.proj__tags li { padding: 4px 11px; border-radius: 999px; background: rgba(255, 255, 255, .1); font-size: 0.88rem; font-weight: 650; }
+
+/* ---------- Reviews ---------- */
+.rev-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 22px; }
+.rev { padding: 22px 22px 20px; border-radius: 16px; background: var(--green-50); display: flex; flex-direction: column; }
+.rev__stars { color: var(--sun-600); font-size: 1.25rem; letter-spacing: 2px; line-height: 1; }
+.rev blockquote { margin: 12px 0 0; }
+.rev blockquote p { font-size: 1.04rem; line-height: 1.55; }
+.rev blockquote p::before { content: "“"; }
+.rev blockquote p::after { content: "”"; }
+.rev__who { margin-top: auto; padding-top: 14px; font-weight: 750; font-size: 0.95rem; }
+.rev__src { display: block; font-weight: 500; color: var(--muted); font-size: 0.88rem; }
+.rev--feature { background: var(--green); color: var(--white); }
+.rev--feature blockquote p { font-size: 1.18rem; font-weight: 550; }
+.rev--feature .rev__stars { color: var(--sun); }
+.rev--feature .rev__src { color: rgba(255, 255, 255, .78); }
+@media (min-width: 760px) {
+  .rev-list { grid-template-columns: repeat(2, 1fr); }
+  .rev--feature { grid-column: 1 / -1; }
+}
+@media (min-width: 1100px) {
+  .rev-list { grid-template-columns: repeat(3, 1fr); }
+  .rev--feature { grid-column: span 2; padding: 30px 32px; }
+  .rev--feature blockquote p { font-size: 1.32rem; }
+}
+
 /* ---------- Financing ---------- */
 .financing { background: var(--green); color: var(--white); }
 .financing__grid { display: grid; gap: 32px; }
