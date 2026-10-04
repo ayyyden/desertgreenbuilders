@@ -350,6 +350,7 @@ function book_(b) {
   if (verifyOn && cache.get('token:' + b.phoneToken) !== b.phone) return { ok: false, error: 'not_verified' };
 
   var lock = LockService.getScriptLock();
+  var calendarEventId = '', crmLead = null;
   lock.waitLock(20000);
   try {
     var s = getSettings_();
@@ -375,20 +376,53 @@ function book_(b) {
     if (s.useCalendar) {
       try {
         var start = toDate_(b.date, b.time);
-        CalendarApp.getDefaultCalendar().createEvent(
+        var ev = CalendarApp.getDefaultCalendar().createEvent(
           'Estimate: ' + clean_(b.fullName, 80) + ' (' + yards[b.yard] + ')',
           start, new Date(start.getTime() + s.lengthMin * 60000),
           { location: address, description: 'Phone: ' + b.phone + '\nHomeowner: ' + owner + '\nInterested in: ' + (services.join(', ') || '-') +
             '\nLanguage: ' + (b.lang === 'es' ? 'Spanish' : 'English') + '\nMap: ' + map + '\nBooked on desertgreenbuilders.com' });
+        calendarEventId = ev.getId().replace(/@google\.com$/, '');   // Calendar API id, as the CRM stores it
       } catch (err) { console.error('Calendar event failed', err); }
     }
     if (b.phoneToken) cache.remove('token:' + b.phoneToken);
+    crmLead = {
+      booking_id: Utilities.getUuid(),
+      full_name: clean_(b.fullName, 80), phone: b.phone, address: address, city: clean_(b.city, 60),
+      scheduled_at: toDate_(b.date, b.time).toISOString(), calendar_event_id: calendarEventId || null,
+      homeowner: owner, yard: yards[b.yard], interests: services.join(', '),
+      language: b.lang === 'es' ? 'Spanish' : 'English', phone_verified: verifyOn
+    };
   } finally {
     lock.releaseLock();
   }
 
   try { notify_(getSettings_(), b, b.date, b.time, verifyOn); } catch (err) { console.error('Email failed', err); }
+  try { sendToCrm_(crmLead); } catch (err) { console.error('CRM sync failed', err); }
   return { ok: true };
+}
+
+/**
+ * Copies the booking onto the Meta Leads page of the Omdan Command Center CRM (Scheduled list).
+ * Needs Script Properties CRM_URL and CRM_SECRET; without them it does nothing.
+ * Never blocks the booking: failures are only logged.
+ */
+function sendToCrm_(lead) {
+  var p = PropertiesService.getScriptProperties();
+  var url = p.getProperty('CRM_URL'), secret = p.getProperty('CRM_SECRET');
+  if (!lead || !url || !secret) return;
+  var opts = { method: 'post', contentType: 'application/json', payload: JSON.stringify(lead),
+    headers: { 'x-website-secret': secret }, muteHttpExceptions: true, followRedirects: false };
+  for (var attempt = 1; attempt <= 2; attempt++) {
+    try {
+      var res = UrlFetchApp.fetch(url, opts), code = res.getResponseCode();
+      if (code === 200 || code === 201) return;
+      console.error('CRM rejected lead (attempt ' + attempt + ')', code, res.getContentText().slice(0, 300));
+      if (code >= 400 && code < 500) return;   // bad key or bad data: retrying won't help
+    } catch (err) {
+      console.error('CRM unreachable (attempt ' + attempt + ')', err);
+    }
+    Utilities.sleep(1500);
+  }
 }
 
 function owner_(v) { return v === 'yes' ? 'Yes' : v === 'no' ? 'No' : 'Not answered'; }
