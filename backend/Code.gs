@@ -23,7 +23,7 @@ var DEFAULTS = {
   'Use my Google Calendar (yes/no)': 'yes'
 };
 var LEAD_HEADERS = ['Received', 'Status', 'Appointment date', 'Time', 'Name', 'Phone', 'Phone verified',
-  'Street', 'Unit', 'City', 'State', 'ZIP', 'Map', 'Yard', 'Interested in', 'Language', 'Consent', 'Notes'];
+  'Street', 'Unit', 'City', 'State', 'ZIP', 'Map', 'Yard', 'Interested in', 'Language', 'Consent', 'Notes', 'Homeowner'];
 var BLOCK_HEADERS = ['Date', 'End date (optional)', 'From time (optional)', 'To time (optional)', 'Note'];
 var DAY_NAMES = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
@@ -361,11 +361,14 @@ function book_(b) {
     var address = [clean_(b.street), clean_(b.unit, 20), clean_(b.city, 60), (clean_(b.state, 2) || 'CA') + ' ' + clean_(b.zip, 10)].filter(String).join(', ');
     var map = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(address);
 
-    SpreadsheetApp.getActive().getSheetByName('Leads').appendRow([
+    var owner = owner_(b.homeowner);
+    var leads = SpreadsheetApp.getActive().getSheetByName('Leads');
+    ensureHeaders_(leads);
+    leads.appendRow([
       new Date(), 'New', b.date, label_(b.time), clean_(b.fullName, 80), b.phone, verifyOn ? 'Yes' : 'No (verification off)',
       clean_(b.street), clean_(b.unit, 20), clean_(b.city, 60), clean_(b.state, 2) || 'CA', clean_(b.zip, 10), map,
       yards[b.yard], services.join(', '), b.lang === 'es' ? 'Spanish' : 'English',
-      'Agreed ' + CONSENT_VERSION + ' (call/text about estimate; terms & privacy)', ''
+      'Agreed ' + CONSENT_VERSION + ' (call/text about estimate; terms & privacy)', '', owner
     ]);
     SpreadsheetApp.flush();
 
@@ -375,7 +378,7 @@ function book_(b) {
         CalendarApp.getDefaultCalendar().createEvent(
           'Estimate: ' + clean_(b.fullName, 80) + ' (' + yards[b.yard] + ')',
           start, new Date(start.getTime() + s.lengthMin * 60000),
-          { location: address, description: 'Phone: ' + b.phone + '\nInterested in: ' + (services.join(', ') || '-') +
+          { location: address, description: 'Phone: ' + b.phone + '\nHomeowner: ' + owner + '\nInterested in: ' + (services.join(', ') || '-') +
             '\nLanguage: ' + (b.lang === 'es' ? 'Spanish' : 'English') + '\nMap: ' + map + '\nBooked on desertgreenbuilders.com' });
       } catch (err) { console.error('Calendar event failed', err); }
     }
@@ -386,6 +389,16 @@ function book_(b) {
 
   try { notify_(getSettings_(), b, b.date, b.time, verifyOn); } catch (err) { console.error('Email failed', err); }
   return { ok: true };
+}
+
+function owner_(v) { return v === 'yes' ? 'Yes' : v === 'no' ? 'No' : 'Not answered'; }
+
+/** Adds any header the Leads tab is missing (e.g. "Homeowner" on sheets set up before it existed). */
+function ensureHeaders_(sh) {
+  var have = sh.getRange(1, 1, 1, Math.max(sh.getLastColumn(), 1)).getValues()[0];
+  LEAD_HEADERS.forEach(function (h, i) {
+    if (!have[i]) sh.getRange(1, i + 1).setValue(h).setFontWeight('bold').setBackground('#EEF3E6');
+  });
 }
 
 function notify_(s, b, date, time, verified) {
@@ -401,6 +414,7 @@ function notify_(s, b, date, time, verified) {
     'Phone: ' + b.phone + (verified ? ' (verified)' : ''),
     'Address: ' + address,
     'Map: https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(address),
+    'Homeowner: ' + owner_(b.homeowner),
     'Yard: ' + (yards[b.yard] || b.yard),
     'Interested in: ' + ((b.services || []).join(', ') || '-'),
     'Language: ' + (b.lang === 'es' ? 'Spanish' : 'English'),

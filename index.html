@@ -399,6 +399,15 @@
                 <button class="linkish" type="button" id="changePhone" data-i18n="f.change">Change</button>
               </p>
             </div>
+
+            <div class="field">
+              <p class="field__label" id="homeownerLabel" data-i18n="f.owner">Are you the homeowner?</p>
+              <div class="yesno" role="radiogroup" aria-labelledby="homeownerLabel" aria-describedby="homeowner-err">
+                <label class="slot"><input type="radio" name="homeowner" value="yes" required><span data-i18n="f.yes">Yes</span></label>
+                <label class="slot"><input type="radio" name="homeowner" value="no"><span data-i18n="f.no">No</span></label>
+              </div>
+              <p class="field__err" id="homeowner-err"></p>
+            </div>
           </fieldset>
 
           <!-- Address -->

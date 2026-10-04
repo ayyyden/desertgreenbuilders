@@ -29,6 +29,7 @@
       "err.date": "Pick a day for the estimate.",
       "err.time": "Pick a time for the estimate.",
       "err.consent": "Please check the box so we can contact you about your estimate.",
+      "err.owner": "Please tell us if you're the homeowner.",
       "err.fix": "Please fix the highlighted fields below.",
       "err.taken": "Sorry, that time was just booked by someone else. Please pick another time.",
       "err.generic": "Something went wrong and your estimate wasn't booked. Please try again, or call us at <a href=\"tel:+17605482781\">(760) 548-2781</a>.",
@@ -63,6 +64,7 @@
       "err.date": "Escoja un día para el estimado.",
       "err.time": "Escoja una hora para el estimado.",
       "err.consent": "Marque la casilla para que podamos contactarle sobre su estimado.",
+      "err.owner": "Díganos si usted es el dueño de la casa.",
       "err.fix": "Corrija los campos marcados abajo.",
       "err.taken": "Lo sentimos, alguien acaba de agendar ese horario. Escoja otra hora.",
       "err.generic": "Algo salió mal y su estimado no se agendó. Intente de nuevo o llámenos al <a href=\"tel:+17605482781\">(760) 548-2781</a>.",
@@ -561,6 +563,7 @@
     var d = digits(phone.value);
     if (!validPhone(d)) check("phone", false, "err.phone");
     else check("phone", !state.verifyEnabled || state.verified, "err.verifyFirst");
+    check("homeowner", !!form.querySelector('input[name="homeowner"]:checked'), "err.owner");
     check("street", street.value.trim().length >= 5 && /\d/.test(street.value), "err.street");
     check("city", $("city").value.trim().length >= 2, "err.city");
     check("zip", /^\d{5}(-\d{4})?$/.test($("zip").value.trim()), "err.zip");
@@ -573,6 +576,7 @@
 
   function focusField(f) {
     var target = {
+      homeowner: form.querySelector('input[name="homeowner"]'),
       yard: form.querySelector('input[name="yard"]'),
       date: grid.querySelector(".cal__day:not([disabled])") || $("calNext"),
       time: form.querySelector('#slots input')
@@ -585,6 +589,7 @@
 
   form.addEventListener("change", function (e) {
     if (e.target.name === "yard") setError("yard", null);
+    if (e.target.name === "homeowner") setError("homeowner", null);
     if (e.target.id === "consent" && e.target.checked) setError("consent", null);
   });
 
@@ -614,6 +619,7 @@
       date: state.date,
       time: state.time,
       lang: lang(),
+      homeowner: form.querySelector('input[name="homeowner"]:checked').value,
       consent: true,
       company: $("company").value,
       elapsedMs: Date.now() - loadedAt,

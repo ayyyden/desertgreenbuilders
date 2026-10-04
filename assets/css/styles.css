@@ -502,6 +502,8 @@ button { font: inherit; }
 .slots__list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 @media (min-width: 560px) { .slots__list { grid-template-columns: repeat(4, 1fr); } }
 .slot { position: relative; }
+.yesno { display: grid; grid-template-columns: repeat(2, minmax(0, 9rem)); gap: 8px; }
+.field__label { font-weight: 700; margin-bottom: 6px; }
 .slot span {
   display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 10px;
   border: 2px solid var(--line); background: var(--white); font-weight: 750; cursor: pointer;
