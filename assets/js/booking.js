@@ -623,7 +623,9 @@
       consent: true,
       company: $("company").value,
       elapsedMs: Date.now() - loadedAt,
-      page: location.href.split("#")[0]
+      page: location.href.split("#")[0],
+      // Which ad brought them here (assets/js/attribution.js, kept 30 days)
+      attribution: (window.DGBAttribution && window.DGBAttribution.get()) || null
     };
     var btn = $("submitBtn");
     setBusy(btn, true, "busy.submit");

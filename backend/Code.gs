@@ -392,6 +392,12 @@ function book_(b) {
       homeowner: owner, yard: yards[b.yard], interests: services.join(', '),
       language: b.lang === 'es' ? 'Spanish' : 'English', phone_verified: verifyOn
     };
+    // Ad attribution captured on the landing page (assets/js/attribution.js):
+    // utm_* + fbclid, so the CRM can tie the booking to the exact Meta ad.
+    var attr = (b.attribution && typeof b.attribution === 'object') ? b.attribution : {};
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid'].forEach(function (k) {
+      if (attr[k]) crmLead[k] = clean_(attr[k], 300);
+    });
   } finally {
     lock.releaseLock();
   }
