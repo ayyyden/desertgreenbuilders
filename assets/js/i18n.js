@@ -101,7 +101,7 @@
     "fin.cta": "Preguntar por financiamiento",
     "fin.short": "*Con crédito aprobado por medio de prestamistas externos. No todos califican. Los términos varían según el prestamista y pueden cambiar. Desert Green Builders no es un prestamista.",
     "fin.more": "Leer los términos completos de financiamiento",
-    "fin.fine": "El financiamiento lo ofrecen prestamistas externos, no Desert Green Builders, y está sujeto a aprobación de crédito. Los términos promocionales, incluyendo $0 de enganche, pagos diferidos y 0% APR hasta por 24 meses, están disponibles solo para solicitantes que califiquen y pueden variar según el prestamista, el historial de crédito y el proyecto. Algunos planes pueden cobrar intereses desde la fecha de compra si el saldo promocional no se paga por completo antes de que termine el período promocional. Algunos planes pueden requerir pagos mínimos mensuales. Todos los términos los fija el prestamista, se describen en su contrato de préstamo o crédito y pueden cambiar o terminar en cualquier momento sin aviso. Desert Green Builders no toma decisiones de crédito y no garantiza la aprobación ni ningún término específico. Vea nuestros <a href=\"terms.html#financing\">Términos</a> para más detalles.",
+    "fin.fine": "El financiamiento lo ofrecen prestamistas externos, no Desert Green Builders, y está sujeto a aprobación de crédito. Los términos promocionales, incluyendo $0 de enganche, pagos diferidos y 0% APR hasta por 24 meses, están disponibles solo para solicitantes que califiquen y pueden variar según el prestamista, el historial de crédito y el proyecto. Algunos planes pueden cobrar intereses desde la fecha de compra si el saldo promocional no se paga por completo antes de que termine el período promocional. Algunos planes pueden requerir pagos mínimos mensuales. Todos los términos los fija el prestamista, se describen en su contrato de préstamo o crédito y pueden cambiar o terminar en cualquier momento sin aviso. Desert Green Builders no toma decisiones de crédito y no garantiza la aprobación ni ningún término específico. Vea nuestros <a href=\"terms#financing\">Términos</a> para más detalles.",
 
     "how.title": "Cómo funciona",
     "how.lede": "Sin presión y sin sorpresas. Usted decide en cada paso.",
@@ -147,7 +147,7 @@
     "cal.prev": "Mes anterior",
     "cal.next": "Mes siguiente",
     "cal.loading": "Cargando días disponibles…",
-    "f.consent": "Acepto que Desert Green Builders me llame o me mande mensajes de texto al número de arriba sobre mi estimado. Dar mi consentimiento no es condición de compra. Pueden aplicar tarifas de mensajes y datos. Responda STOP para dejar de recibir mensajes. Acepto los <a href=\"terms.html\" target=\"_blank\" rel=\"noopener\">Términos</a> y la <a href=\"privacy.html\" target=\"_blank\" rel=\"noopener\">Política de privacidad</a>.",
+    "f.consent": "Acepto que Desert Green Builders me llame o me mande mensajes de texto al número de arriba sobre mi estimado. Dar mi consentimiento no es condición de compra. Pueden aplicar tarifas de mensajes y datos. Responda STOP para dejar de recibir mensajes. Acepto los <a href=\"terms\" target=\"_blank\" rel=\"noopener\">Términos</a> y la <a href=\"privacy\" target=\"_blank\" rel=\"noopener\">Política de privacidad</a>.",
     "f.submit": "Agendar mi estimado gratis",
     "f.fine": "Gratis y sin compromiso. Le llamaremos para confirmar su cita.",
 

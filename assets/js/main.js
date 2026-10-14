@@ -129,11 +129,11 @@
   }
 
   /* ---------- Old #book links ----------
-     Booking moved to its own page (estimate.html). Ads and bookmarks that still point at
+     Booking moved to its own page (/estimate). Ads and bookmarks that still point at
      /#book go straight there, keeping any ad tags in the query string. */
   function landOnBooking() {
-    if (location.hash !== "#book" || !document.querySelector('a[href="estimate.html"]')) return;
-    location.replace("estimate.html" + location.search);
+    if (location.hash !== "#book" || !document.querySelector('a[href="estimate"]')) return;
+    location.replace("estimate" + location.search);
   }
 
   function start() {
