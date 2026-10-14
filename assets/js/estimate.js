@@ -52,6 +52,14 @@
       "ics.title": "Free estimate with Desert Green Builders",
       "ics.desc": "Free on-site estimate. Questions or changes: (760) 548-2781.",
       "cal.group": "Days",
+      "err.zip5": "Enter your 5-digit ZIP code.",
+      "err.zipArea": "We don't serve this ZIP code.",
+      "stop.zip.t": "Sorry, we don't serve this location.",
+      "stop.zip.d": "We don't work in ZIP code {zip} yet. If you think that's a mistake, give us a call.",
+      "stop.owner.t": "Sorry, we can't serve you.",
+      "stop.owner.d": "We can only do estimates for the homeowner. If the owner of the home wants an estimate, they're welcome to book one.",
+      "stop.back.zip": "Change my ZIP code",
+      "stop.back.owner": "Change my answer",
       "step": "Step {n} of {total}",
       "err.pick": "Pick a day and a time to continue.",
       "ics.title.roof": "Free roof estimate with Desert Green Builders"
@@ -90,6 +98,14 @@
       "ics.title": "Estimado gratis con Desert Green Builders",
       "ics.desc": "Estimado gratis en su casa. Preguntas o cambios: (760) 548-2781.",
       "cal.group": "Días",
+      "err.zip5": "Escriba su código postal de 5 dígitos.",
+      "err.zipArea": "No damos servicio en este código postal.",
+      "stop.zip.t": "Lo sentimos, no damos servicio en esta zona.",
+      "stop.zip.d": "Todavía no trabajamos en el código postal {zip}. Si cree que es un error, llámenos.",
+      "stop.owner.t": "Lo sentimos, no le podemos atender.",
+      "stop.owner.d": "Solo hacemos estimados para el dueño de la casa. Si el dueño quiere un estimado, con gusto puede agendarlo.",
+      "stop.back.zip": "Cambiar mi código postal",
+      "stop.back.owner": "Cambiar mi respuesta",
       "step": "Paso {n} de {total}",
       "err.pick": "Escoja un día y una hora para continuar.",
       "ics.title.roof": "Estimado gratis de techo con Desert Green Builders"
@@ -577,7 +593,9 @@
     else check("phone", !state.verifyEnabled || state.verified, "err.verifyFirst");
     check("street", street.value.trim().length >= 5 && /\d/.test(street.value), "err.street");
     check("city", $("city").value.trim().length >= 2, "err.city");
-    check("zip", /^\d{5}(-\d{4})?$/.test($("zip").value.trim()), "err.zip");
+    var zipVal = $("zip").value.trim();
+    if (!/^\d{5}(-\d{4})?$/.test(zipVal)) check("zip", false, "err.zip");
+    else check("zip", served(zipVal), "err.zipArea");
     check("consent", $("consent").checked, "err.consent");
     return bad;
   }
@@ -743,6 +761,7 @@
     rerenderErrors();
     renderSuccess();
     renderCount();
+    renderStop();
     if (state.resendLeft > 0 || !$("codeRow").hidden) {
       var b = $("resendCode");
       b.textContent = state.resendLeft > 0 ? t("resendIn", { s: state.resendLeft }) : t("resend");
@@ -780,6 +799,8 @@
   var STORE = "dgb-estimate-" + SERVICE;
   // job-question steps (everything before the schedule) and the input names they hold
   var questionSteps = steps.slice(0, steps.findIndex(function (s) { return s.getAttribute("data-step") === "when"; }));
+  var zipInput = $("zipStart");
+  function served(zip) { return !!(window.DGB_SERVICE_ZIPS && window.DGB_SERVICE_ZIPS[String(zip).slice(0, 5)]); }
   var QUESTIONS = [];
   questionSteps.forEach(function (s) {
     s.querySelectorAll(".opt input").forEach(function (i) { if (QUESTIONS.indexOf(i.name) < 0) QUESTIONS.push(i.name); });
@@ -789,6 +810,7 @@
   function stepIndex(name) { return steps.findIndex(function (s) { return s.getAttribute("data-step") === name; }); }
   function answers() {
     var a = {};
+    if (zipInput && /^\d{5}$/.test(zipInput.value)) a.zipStart = zipInput.value;
     QUESTIONS.forEach(function (q) {
       var inputs = form.querySelectorAll('input[name="' + q + '"]');
       if (inputs[0] && inputs[0].type === "checkbox") {
@@ -811,14 +833,21 @@
     var a = {};
     try { a = JSON.parse(sessionStorage.getItem(STORE) || "{}") || {}; } catch (e) {}
     Object.keys(a).forEach(function (q) {
+      if (q === "zipStart") return;
       form.querySelectorAll('input[name="' + q + '"]').forEach(function (i) {
         i.checked = Array.isArray(a[q]) ? a[q].indexOf(i.value) >= 0 : i.value === a[q];
       });
     });
-    // open the first question not answered yet (a checkbox question counts once Continue was pressed)
+    if (zipInput && a.zipStart) { zipInput.value = a.zipStart; if (!$("zip").value) $("zip").value = a.zipStart; }
+    // open the first question not answered yet (a checkbox question counts once Continue was pressed);
+    // a ZIP outside the area or a "no" to homeowner sends them back to that question
     for (var i = 0; i < questionSteps.length; i++) {
+      if (questionSteps[i].getAttribute("data-step") === "zip") {
+        if (!a.zipStart || !served(a.zipStart)) return i;
+        continue;
+      }
       var name = questionSteps[i].querySelector(".opt input").name;
-      if (a[name] === undefined || a[name] === "") return i;
+      if (a[name] === undefined || a[name] === "" || (name === "homeowner" && a[name] === "no")) return i;
     }
     return stepIndex("when");
   }
@@ -829,6 +858,7 @@
 
   function show(n, push) {
     n = Math.max(0, Math.min(steps.length - 1, n));
+    hideStop();
     var back = n < current;
     steps.forEach(function (s, i) { s.hidden = i !== n; });
     var step = steps[n];
@@ -846,6 +876,58 @@
   }
   function next() { show(current + 1, true); }
 
+  /* ---------- "Sorry, we can't take this job" ---------- */
+  var stopKind = "";
+  function renderStop() {
+    if (!stopKind) return;
+    $("stopTitle").textContent = t("stop." + stopKind + ".t");
+    $("stopText").textContent = t("stop." + stopKind + ".d", { zip: zipInput ? zipInput.value : "" });
+    $("stopBack").textContent = t("stop.back." + stopKind);
+  }
+  function showStop(kind) {
+    stopKind = kind;
+    renderStop();
+    form.hidden = true;
+    $("wizTop").hidden = true;
+    var box = $("wizStop");
+    box.hidden = false;
+    history.pushState({ wiz: current, stop: kind }, "");
+    window.scrollTo({ top: 0 });
+    box.focus({ preventScroll: true });
+  }
+  function hideStop() {
+    if (!stopKind) return;
+    stopKind = "";
+    $("wizStop").hidden = true;
+    form.hidden = false;
+    $("wizTop").hidden = false;
+  }
+  $("stopBack").addEventListener("click", function () {
+    if (history.state && history.state.stop) history.back();
+    else show(current, false);
+    if (zipInput && !zipInput.closest(".wiz-step").hidden) { zipInput.select(); }
+  });
+
+  /* ---------- First question: ZIP code ---------- */
+  function checkZip() {
+    var z = (zipInput.value || "").replace(/\D/g, "").slice(0, 5);
+    zipInput.value = z;
+    if (z.length !== 5) { setError("zipStart", "err.zip5"); zipInput.focus(); return; }
+    setError("zipStart", null);
+    saveAnswers();
+    if (!served(z)) { showStop("zip"); return; }
+    $("zip").value = z;                         // prefill the ZIP on the last screen
+    next();
+  }
+  if (zipInput) {
+    $("zipNext").addEventListener("click", checkZip);
+    zipInput.addEventListener("input", function () {
+      zipInput.value = zipInput.value.replace(/\D/g, "").slice(0, 5);
+      if (state.errors.zipStart && zipInput.value.length === 5) setError("zipStart", null);
+    });
+    zipInput.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); checkZip(); } });
+  }
+
   // Tapping an answer moves on. Arrow keys only change the answer; Enter or Space moves on.
   form.addEventListener("click", function (e) {
     var input = e.target.closest(".opt input");
@@ -854,7 +936,7 @@
     if (input.type !== "radio") return;         // checkbox questions wait for Continue
     if (e.detail === 0) return;                 // click generated by the keyboard
     clearTimeout(advanceTimer);
-    advanceTimer = setTimeout(next, 220);       // let them see the choice light up
+    advanceTimer = setTimeout(input.name === "homeowner" && input.value === "no" ? function () { showStop("owner"); } : next, 220);
   });
   form.addEventListener("keydown", function (e) {
     var input = e.target.closest && e.target.closest(".opt input");
@@ -862,7 +944,7 @@
     e.preventDefault();
     input.checked = true;
     saveAnswers();
-    next();
+    if (input.name === "homeowner" && input.value === "no") showStop("owner"); else next();
   });
   form.querySelectorAll(".wiz-next[data-next]").forEach(function (b) {
     b.addEventListener("click", function () {
@@ -886,8 +968,13 @@
   });
   window.addEventListener("popstate", function (e) {
     if (!$("bookingSuccess").hidden) return;
+    if (e.state && e.state.stop) { showStopFromHistory(e.state.stop); return; }
     show(e.state && typeof e.state.wiz === "number" ? e.state.wiz : 0, false);
   });
+  function showStopFromHistory(kind) {   // forward button back onto a "sorry" screen
+    stopKind = kind; renderStop();
+    form.hidden = true; $("wizTop").hidden = true; $("wizStop").hidden = false;
+  }
 
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   try {   // checkbox questions saved earlier this visit were already passed

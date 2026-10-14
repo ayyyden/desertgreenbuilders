@@ -13,6 +13,6 @@ window.DGB_CONFIG = {
   phoneE164: "+17605482781",
   phoneDisplay: "(760) 548-2781",
   timeZone: "America/Los_Angeles",
-  // Address suggestions are biased toward this point (Coachella Valley / high desert area).
-  addressBias: { lat: 33.72, lon: -116.37 }
+  // Address suggestions are biased toward the middle of the service area (LA, Orange County, Inland Empire).
+  addressBias: { lat: 33.92, lon: -117.85 }
 };

@@ -73,6 +73,17 @@
 
 .lbl-short { display: none; }
 
+/* first question: ZIP code */
+.wiz-step .zip-big { font-size: 1.5rem !important; font-weight: 750; letter-spacing: 0.12em; text-align: center; min-height: 60px !important; }
+.wiz-step .zip-big::placeholder { letter-spacing: 0; font-weight: 500; font-size: 1.1rem; }
+
+/* "sorry, we can't take this job" */
+.wiz-stop { text-align: center; padding: 8px 0 4px; outline: none; }
+.wiz-stop__mark { width: 64px; height: 64px; margin: 0 auto 12px; fill: var(--sun); stroke: var(--char); stroke-width: 5; stroke-linecap: round; }
+.wiz-stop h1 { font-size: 1.7rem; font-stretch: 110%; }
+.wiz-stop p { margin: 10px auto 0; max-width: 28rem; color: var(--muted); }
+.wiz-stop .success__actions { margin-top: 20px; }
+
 /* ---------- Phones: every screen fits without scrolling ----------
    Tuned for the visible area of real phone browsers (address bar and toolbar showing):
    about 664px tall on an iPhone 14/15, 548px on an iPhone SE. */

@@ -1,0 +1,72 @@
+# Cities we serve (California), one per line. Then run:  py tools/build_service_area.py
+Moreno Valley
+Riverside
+San Bernardino
+Grand Terrace
+Jurupa Valley
+Eastvale
+Norco
+Corona
+Rancho Cucamonga
+Fontana
+Rialto
+Colton
+Highgrove
+Cerritos
+Chino
+Chino Hills
+Upland
+Claremont
+Ontario
+Covina
+West Covina
+Diamond Bar
+Rowland Heights
+Montclair
+San Dimas
+Glendora
+Azusa
+Arcadia
+El Monte
+Alhambra
+Monterey Park
+Montebello
+Downey
+Norwalk
+Whittier
+La Mirada
+Buena Park
+Bellflower
+Pico Rivera
+Anaheim
+Yorba Linda
+Orange
+Garden Grove
+Tustin
+Santa Ana
+Irvine
+Costa Mesa
+Newport Beach
+Huntington Beach
+Fountain Valley
+Seal Beach
+Long Beach
+Lakewood
+Carson
+Huntington Park
+South Gate
+Culver City
+Westmont
+Inglewood
+Compton
+Hawthorne
+Gardena
+Torrance
+Manhattan Beach
+Redondo Beach
+Palos Verdes Estates
+Rancho Palos Verdes
+Hermosa Beach
+El Segundo
+Lawndale
+Lomita
