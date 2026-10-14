@@ -178,7 +178,7 @@
     "foot.license": "Licencia de contratista de CA #",
 
     "w.back": "Atrás",
-    "w.continue": "Continuar",
+    "w.continue": "Siguiente",
     "w.notsure": "No estoy seguro",
     "w.contact.q": "Último paso: ¿cómo le contactamos?",
     "w.street": "Dirección de la casa",
