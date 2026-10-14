@@ -10,9 +10,11 @@ Until this is set up, the live website tells visitors to call (760) 548-2781 ins
 1. Go to <https://sheets.new> and name the sheet **Desert Green Builders Leads**.
 2. Click **Extensions → Apps Script**.
 3. Delete everything in `Code.gs`, then paste in all of [`Code.gs`](Code.gs) from this folder.
-4. Click the gear icon (**Project Settings**) and tick **Show "appsscript.json" manifest file in editor**.
+4. Click **+** next to *Files* → **Script**, name it `ServiceZips`, and paste in all of [`ServiceZips.gs`](ServiceZips.gs)
+   (the ZIP codes you serve; regenerate it with `py tools/build_service_area.py` when cities change).
+5. Click the gear icon (**Project Settings**) and tick **Show "appsscript.json" manifest file in editor**.
    Go back to the editor, open `appsscript.json`, and replace its contents with [`appsscript.json`](appsscript.json).
-5. Click **Save** (disk icon).
+6. Click **Save** (disk icon).
 
 ## 2. Set up the sheets
 
@@ -68,7 +70,9 @@ No redeploy is needed: the website picks it up on the next page load.
 | Block part of a day | **Blocked** tab: date in A, times in C and D, like `1:00 PM` and `8:00 PM`. |
 | Block anything else | Put it on your Google Calendar. Anything on it blocks that time, and all-day events block the whole day. |
 | Cancel a booking | **Leads** tab: set Status to `Cancelled` (and delete the calendar event). The slot opens up again. |
-| Change appointment times | **Settings** tab, *Appointment times*: e.g. `8:00 AM, 11:30 AM, 3:00 PM, 6:30 PM`. Spacing these 3 to 4 hours apart is how the gap between leads is enforced. |
+| Change appointment times | **Settings** tab, *Appointment times*: default `9:00 AM, 10:00 AM, … 7:00 PM` (every hour). The drive-time rule below hides the ones the salesman can't make. |
+| Time at each appointment | **Settings** tab, *Appointment length (minutes)*: default `120`. Also the length of the calendar event. |
+| Drive time between appointments | **Settings** tab, *Use drive time between appointments*: `yes`. A time is only offered if the salesman can finish the appointment before it, drive there and still have *Extra buffer between appointments (minutes)* (default `15`) to spare, and the same for the appointment after it. Drive times come from Google Maps and are saved in the **Drive times** tab (you can correct a number there). Calendar events with an address in the location or description count too; events without one only block their own time. |
 | Allow fewer leads per day | **Settings** tab, *Max appointments per day*: e.g. `3`. |
 | Change days | **Settings** tab, *Days open for booking*. Friday and Saturday are always closed, even if listed. |
 | Stop same-day bookings | **Settings** tab, *Minimum notice (hours)*: default 18. |

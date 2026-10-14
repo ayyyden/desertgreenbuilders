@@ -8,17 +8,23 @@
  *   Settings  appointment times, max per day, how far ahead people can book, etc.
  * Your Google Calendar: anything on it blocks that time (all-day events block the day),
  *   and every new booking is added to it.
+ * Drive times: one salesman drives to every estimate, so a time is only offered when he can
+ *   finish the appointment before it (Appointment length) + drive there + the buffer, and
+ *   likewise make the one after it. Drive times between ZIP codes come from Google Maps once
+ *   and are saved in the "Drive times" tab; ServiceZips.gs (second file) has the ZIP list.
  */
 
 var TZ = 'America/Los_Angeles';
 var CONSENT_VERSION = '2026-10-02';
 var DEFAULTS = {
-  'Appointment times': '8:00 AM, 11:30 AM, 3:00 PM, 6:30 PM',
+  'Appointment times': '9:00 AM, 10:00 AM, 11:00 AM, 12:00 PM, 1:00 PM, 2:00 PM, 3:00 PM, 4:00 PM, 5:00 PM, 6:00 PM, 7:00 PM',
   'Max appointments per day': 4,
   'Days open for booking': 'Sun, Mon, Tue, Wed, Thu',
   'How many days ahead people can book': 30,
   'Minimum notice (hours)': 18,
-  'Appointment length (minutes)': 60,
+  'Appointment length (minutes)': 120,
+  'Extra buffer between appointments (minutes)': 15,
+  'Use drive time between appointments (yes/no)': 'yes',
   'Send new leads to (email)': 'omdandevelopment@gmail.com',
   'Use my Google Calendar (yes/no)': 'yes'
 };
@@ -118,7 +124,8 @@ function doGet(e) {
     var action = (e && e.parameter && e.parameter.action) || '';
     if (action === 'availability') {
       var s = getSettings_();
-      return json_({ ok: true, timezone: TZ, phoneVerification: twilioReady_(), days: availability_(s) });
+      var zip = String(e.parameter.zip || '').replace(/\D/g, '').slice(0, 5);
+      return json_({ ok: true, timezone: TZ, phoneVerification: twilioReady_(), days: availability_(s, null, zip.length === 5 ? zip : '') });
     }
     return json_({ ok: true, service: 'Desert Green Builders booking' });
   } catch (err) {
@@ -158,6 +165,9 @@ function getSettings_() {
     sh.getRange(2, 1, sh.getLastRow() - 1, 2).getDisplayValues().forEach(function (r) { raw[String(r[0]).trim()] = String(r[1]).trim(); });
   }
   function get(k) { return raw[k] !== undefined && raw[k] !== '' ? raw[k] : DEFAULTS[k]; }
+  if (sh && sh.getLastRow() > 0) {
+    Object.keys(DEFAULTS).forEach(function (k) { if (raw[k] === undefined) sh.appendRow([k, String(DEFAULTS[k])]); });
+  }
 
   var slots = String(get('Appointment times')).split(',').map(parseTime_).filter(Boolean).sort();
   var days = String(get('Days open for booking')).toLowerCase().split(',').map(function (d) {
@@ -170,7 +180,9 @@ function getSettings_() {
     workDays: days,
     daysAhead: Math.min(120, Math.max(1, parseInt(get('How many days ahead people can book'), 10) || 30)),
     minNoticeHours: Math.max(0, parseFloat(get('Minimum notice (hours)')) || 0),
-    lengthMin: Math.max(15, parseInt(get('Appointment length (minutes)'), 10) || 60),
+    lengthMin: Math.max(15, parseInt(get('Appointment length (minutes)'), 10) || 120),
+    bufferMin: Math.max(0, parseInt(get('Extra buffer between appointments (minutes)'), 10) || 0),
+    useDrive: /^y/i.test(String(get('Use drive time between appointments (yes/no)'))),
     email: String(get('Send new leads to (email)')),
     useCalendar: /^y/i.test(String(get('Use my Google Calendar (yes/no)')))
   };
@@ -199,7 +211,13 @@ function ymd_(d) { return Utilities.formatDate(d, TZ, 'yyyy-MM-dd'); }
 /* Availability                                                        */
 /* ------------------------------------------------------------------ */
 
-function availability_(s, onlyDate) {
+/**
+ * Open times per day. With a customer ZIP (and drive time on), a time T is open only if, for every
+ * other appointment A that day:  A before T -> A ends + drive(A -> customer) + buffer <= T,
+ * A after T -> T + length + drive(customer -> A) + buffer <= A starts.  Appointments whose place
+ * is unknown (e.g. a personal calendar event) just can't overlap.
+ */
+function availability_(s, onlyDate, zip) {
   var now = new Date();
   var earliest = new Date(now.getTime() + s.minNoticeHours * 3600 * 1000);
   var todayYmd = ymd_(now);
@@ -216,20 +234,29 @@ function availability_(s, onlyDate) {
   if (!dates.length) return [];
 
   var blocks = readBlocks_();
-  var booked = readBooked_();
-  var busy = s.useCalendar ? readCalendarBusy_(toDate_(dates[0], '00:00'), toDate_(dates[dates.length - 1], '23:59')) : [];
+  var appts = readAppointments_(s, toDate_(dates[0], '00:00'), toDate_(dates[dates.length - 1], '23:59'));
+  var travel = !!(zip && s.useDrive);
+  var gap = s.bufferMin * 60000, len = s.lengthMin * 60000;
 
   var out = [];
   dates.forEach(function (date) {
-    var taken = booked[date] || {};
+    var taken = appts.booked[date] || {};
     var count = Object.keys(taken).reduce(function (n, k) { return n + taken[k]; }, 0);
     if (count >= s.maxPerDay) return;
+    var day = appts.byDate[date] || [];
     var slots = s.slots.filter(function (hm) {
       if (taken[hm]) return false;
-      var a = toDate_(date, hm), b = new Date(a.getTime() + s.lengthMin * 60000);
+      var a = toDate_(date, hm), b = new Date(a.getTime() + len);
       if (a < earliest) return false;
       for (var j = 0; j < blocks.length; j++) if (blocks[j].covers(date, hm)) return false;
-      for (var k = 0; k < busy.length; k++) if (a < busy[k][1] && b > busy[k][0]) return false;
+      for (var k = 0; k < day.length; k++) {
+        var x = day[k];
+        if (travel && x.zip && !x.allDay) {
+          if (x.start <= a) {
+            if (x.end.getTime() + driveMinutes_(x.zip, zip) * 60000 + gap > a.getTime()) return false;
+          } else if (b.getTime() + driveMinutes_(zip, x.zip) * 60000 + gap > x.start.getTime()) return false;
+        } else if (a < x.end && b > x.start) return false;
+      }
       return true;
     });
     if (slots.length) out.push({ date: date, slots: slots.map(function (hm) { return { time: hm }; }) });
@@ -249,34 +276,130 @@ function readBlocks_() {
   }).filter(Boolean);
 }
 
-function readBooked_() {
+/**
+ * Appointments between two dates, from the Leads tab (date, time, ZIP) and Google Calendar.
+ * booked:  { 'yyyy-MM-dd': { 'HH:mm': count } }  Leads only, for "max per day" and taken times.
+ * byDate:  { 'yyyy-MM-dd': [ { start, end, zip, allDay } ] }  everything David has that day.
+ * A calendar event that starts at the same minute as a Leads row is the same appointment.
+ */
+function readAppointments_(s, from, to) {
+  var booked = {}, byDate = {}, keyed = {};
+  function add(date, appt) { (byDate[date] = byDate[date] || []).push(appt); }
+
   var sh = SpreadsheetApp.getActive().getSheetByName('Leads');
-  var map = {};
-  if (!sh || sh.getLastRow() < 2) return map;
-  sh.getRange(2, 2, sh.getLastRow() - 1, 3).getDisplayValues().forEach(function (r) {
-    var status = String(r[0]).toLowerCase();
-    if (status === 'cancelled' || status === 'canceled') return;
-    var date = String(r[1]).trim(), hm = parseTime_(r[2]);
-    if (!date || !hm) return;
-    map[date] = map[date] || {};
-    map[date][hm] = (map[date][hm] || 0) + 1;
-  });
-  return map;
+  if (sh && sh.getLastRow() >= 2) {
+    sh.getRange(2, 2, sh.getLastRow() - 1, 11).getDisplayValues().forEach(function (r) {   // B status .. L ZIP
+      var status = String(r[0]).toLowerCase();
+      if (status === 'cancelled' || status === 'canceled') return;
+      var date = String(r[1]).trim(), hm = parseTime_(r[2]);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !hm) return;
+      booked[date] = booked[date] || {};
+      booked[date][hm] = (booked[date][hm] || 0) + 1;
+      var start = toDate_(date, hm);
+      if (start < from || start > to) return;
+      var appt = { start: start, end: new Date(start.getTime() + s.lengthMin * 60000), zip: zip5_(r[10]), allDay: false };
+      keyed[date + ' ' + hm] = appt;
+      add(date, appt);
+    });
+  }
+
+  if (s.useCalendar) {
+    readCalendarBusy_(from, to).forEach(function (ev) {
+      var date = ymd_(ev.start);
+      var same = !ev.allDay && keyed[date + ' ' + Utilities.formatDate(ev.start, TZ, 'HH:mm')];
+      if (same) {   // the website's own event for a Leads row: keep the longer of the two, fill in a ZIP
+        if (ev.end > same.end) same.end = ev.end;
+        if (!same.zip) same.zip = ev.zip;
+        return;
+      }
+      add(date, ev);
+    });
+  }
+  return { booked: booked, byDate: byDate };
 }
 
 function readCalendarBusy_(from, to) {
   try {
     var cal = CalendarApp.getDefaultCalendar();
     return cal.getEvents(from, to).map(function (ev) {
-      if (ev.isAllDayEvent()) {
-        return [ev.getAllDayStartDate(), ev.getAllDayEndDate()];
-      }
-      return [ev.getStartTime(), ev.getEndTime()];
+      if (ev.isAllDayEvent()) return { start: ev.getAllDayStartDate(), end: ev.getAllDayEndDate(), zip: '', allDay: true };
+      // where it is: the event's location, else an address in the description (the CRM writes "Address: ...")
+      var zip = zip5_(ev.getLocation()) || zip5_(ev.getDescription());
+      return { start: ev.getStartTime(), end: ev.getEndTime(), zip: zip, allDay: false };
     });
   } catch (err) {
     console.error('Calendar read failed', err);
     return [];
   }
+}
+
+/** First California-style ZIP code (90000-96199) in a piece of text, or ''. */
+function zip5_(text) {
+  var m = String(text || '').match(/(?:^|[^\d])(9[0-6]\d{3})(?:-\d{4})?(?![\d])/);
+  return m ? m[1] : '';
+}
+
+/* ------------------------------------------------------------------ */
+/* Drive times between ZIP codes                                       */
+/* ------------------------------------------------------------------ */
+
+var driveCache_ = null;   // 'zipA|zipB' -> minutes (zipA < zipB), filled once per request
+
+function driveMinutes_(fromZip, toZip) {
+  if (!fromZip || !toZip) return 0;
+  if (fromZip === toZip) return 10;
+  var key = fromZip < toZip ? fromZip + '|' + toZip : toZip + '|' + fromZip;
+  var sh = null;
+  try { sh = SpreadsheetApp.getActive().getSheetByName('Drive times'); } catch (err) { console.error(err); }
+  if (!driveCache_) {
+    driveCache_ = {};
+    try {   // the saved table is a speed-up only: if it can't be read or made, carry on without it
+      if (!sh) {
+        sh = SpreadsheetApp.getActive().insertSheet('Drive times');
+        sh.appendRow(['ZIP A', 'ZIP B', 'Minutes', 'Source', 'Looked up']);
+        sh.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#EEF3E6');
+        sh.getRange('A:B').setNumberFormat('@');
+        sh.setFrozenRows(1);
+      } else if (sh.getLastRow() >= 2) {
+        sh.getRange(2, 1, sh.getLastRow() - 1, 3).getDisplayValues().forEach(function (r) {
+          var m = parseFloat(r[2]);
+          if (r[0] && r[1] && m > 0) driveCache_[r[0] < r[1] ? r[0] + '|' + r[1] : r[1] + '|' + r[0]] = m;
+        });
+      }
+    } catch (err) { console.error('Drive times tab unavailable', err); sh = null; }
+  }
+  if (driveCache_[key]) return driveCache_[key];
+
+  var pair = key.split('|'), minutes = 0, source = 'Google Maps';
+  try {
+    var dir = Maps.newDirectionFinder().setOrigin(place_(pair[0])).setDestination(place_(pair[1]))
+      .setMode(Maps.DirectionFinder.Mode.DRIVING).getDirections();
+    if (dir && dir.routes && dir.routes.length) minutes = Math.round(dir.routes[0].legs[0].duration.value / 60);
+  } catch (err) {
+    console.error('Google Maps drive time failed for ' + key, err);
+  }
+  if (!minutes) { minutes = estimateDrive_(pair[0], pair[1]); source = 'Estimate (straight-line distance)'; }
+  driveCache_[key] = minutes;
+  if (sh) { try { sh.appendRow([pair[0], pair[1], minutes, source, new Date()]); } catch (err) { console.error(err); } }
+  return minutes;
+}
+
+/** Where a ZIP is, for Google Maps: its centre point when we know it, otherwise "ZIP, CA". */
+function place_(zip) {
+  var p = (typeof SERVICE_ZIPS !== 'undefined') && SERVICE_ZIPS[zip];
+  return p && p[0] != null ? p[0] + ',' + p[1] : zip + ', CA';
+}
+
+/** Backup when Google Maps isn't available: straight-line miles x 1.3 for roads, at 45 mph, + 10 min. */
+function estimateDrive_(a, b) {
+  var pa = (typeof SERVICE_ZIPS !== 'undefined') && SERVICE_ZIPS[a];
+  var pb = (typeof SERVICE_ZIPS !== 'undefined') && SERVICE_ZIPS[b];
+  if (!pa || !pb || pa[0] == null || pb[0] == null) return 90;   // unknown place: assume a long drive
+  var R = 3959, toRad = Math.PI / 180;
+  var dLat = (pb[0] - pa[0]) * toRad, dLon = (pb[1] - pa[1]) * toRad;
+  var h = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(pa[0] * toRad) * Math.cos(pb[0] * toRad) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  var miles = 2 * R * Math.asin(Math.sqrt(h));
+  return Math.round(miles * 1.3 / 45 * 60 + 10);
 }
 
 /* ------------------------------------------------------------------ */
@@ -358,6 +481,8 @@ function book_(b) {
       clean_(b.street).length < 5 || clean_(b.city).length < 2 || !/^\d{5}(-\d{4})?$/.test(String(b.zip || ''))) {
     return { ok: false, error: 'invalid' };
   }
+  var zip = String(b.zip || '').slice(0, 5);
+  if (typeof SERVICE_ZIPS !== 'undefined' && !SERVICE_ZIPS[zip]) return { ok: false, error: 'out_of_area' };
   if (!allow_('book:' + b.phone, 3, 3600)) return { ok: false, error: 'rate_limited' };
 
   var verifyOn = twilioReady_();
@@ -369,7 +494,7 @@ function book_(b) {
   lock.waitLock(20000);
   try {
     var s = getSettings_();
-    var open = availability_(s, b.date);
+    var open = availability_(s, b.date, zip);
     var free = open.length && open[0].slots.some(function (x) { return x.time === b.time; });
     if (!free) return { ok: false, error: 'slot_taken' };
 

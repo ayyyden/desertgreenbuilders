@@ -153,6 +153,12 @@ body.wiz-page:not([data-wiz-step="zip"]) .wiz-legal { display: none; }
   .wiz-step .slots .fs__sub { margin: 0 0 5px; font-size: 0.84rem; text-align: center; }
   .wiz-step .slots__list { grid-template-columns: repeat(4, 1fr); gap: 5px; }
   .wiz-step .slot span { min-height: 40px; font-size: 0.86rem; border-radius: 8px; }
+  /* up to 11 times a day (9 AM - 7 PM): three short rows */
+  .wiz-step[data-step="when"] .slots__list { gap: 4px; }
+  .wiz-step[data-step="when"] .slot span { min-height: 34px; font-size: 0.8rem; }
+  .wiz-step[data-step="when"] .cal__day { height: 29px; }
+  .wiz-step[data-step="when"] .wiz-next { margin-top: 12px; }
+  .wiz-step[data-step="when"] .wiz-q { margin-bottom: 12px; }
 
   /* contact */
   .wiz-step[data-step="contact"] .wiz-q { font-size: 1.08rem; margin-bottom: 10px; }
@@ -203,7 +209,8 @@ body.wiz-page:not([data-wiz-step="zip"]) .wiz-legal { display: none; }
   .opt__icon svg { width: 27px; height: 27px; }
   .opts, .opts--two { gap: 6px; }
   .wiz-step .wiz-next, .wiz-step .wiz-next.btn--block { margin-top: 12px; min-height: 44px; }
-  .wiz-step .cal__day { height: 29px; }
+  .wiz-step .cal__day, .wiz-step[data-step="when"] .cal__day { height: 26px; }
+  .wiz-step[data-step="when"] .slot span { min-height: 32px; }
   .wiz-step[data-step="contact"] .field > label:not(.check),
   .wiz-step[data-step="contact"] .field-grid label {
     position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;

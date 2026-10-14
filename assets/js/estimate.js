@@ -443,7 +443,10 @@
     return new Date(2000, 0, 1, +p[0], +p[1]).toLocaleTimeString(locale(), { hour: "numeric", minute: "2-digit" });
   }
 
-  function loadAvailability() {
+  // Open times depend on where the customer is (one salesman drives between appointments), so
+  // they're loaded for the ZIP from the first question, and loaded again if the ZIP changes.
+  var availZip = "", availSeq = 0;
+  function loadAvailability(zip) {
     if (OFFLINE) {
       showStatus("err.offline");
       $("calLoading").hidden = true;
@@ -451,7 +454,14 @@
       $("submitBtn").disabled = true;
       return;
     }
-    api("GET", { action: "availability" }).then(function (res) {
+    if (zip !== undefined) availZip = zip;
+    var seq = ++availSeq;
+    $("calendar").classList.remove("is-ready");
+    $("calLoading").textContent = window.DGBi18n ? DGBi18n.t("cal.loading", "Loading open days…") : "Loading open days…";
+    $("calGrid").innerHTML = ""; $("calDow").innerHTML = ""; $("calMonth").textContent = "";
+    $("slotsWrap").hidden = true;
+    api("GET", { action: "availability", zip: availZip }).then(function (res) {
+      if (seq !== availSeq) return;             // a newer ZIP's times are on the way
       if (!res.ok) throw new Error(res.error || "bad response");
       state.verifyEnabled = res.phoneVerification !== false;
       applyVerifyMode();
@@ -476,9 +486,11 @@
       state.months = months;
       $("calendar").classList.add("is-ready");
       if (state.date && !state.days[state.date]) { state.date = ""; state.time = ""; }
+      if (state.time && state.days[state.date].indexOf(state.time) < 0) state.time = "";
       renderCalendar();
       renderSlots();
     }).catch(function () {
+      if (seq !== availSeq) return;
       $("calLoading").innerHTML = t("err.avail");
     });
   }
@@ -670,9 +682,11 @@
       if (res.ok) return done(payload);
       if (res.error === "slot_taken") {
         state.time = "";
-        loadAvailability();
+        loadAvailability($("zip").value.trim().slice(0, 5));   // times for the address they gave
         show(stepIndex("when"), true);
         setError("when", "err.taken");
+      } else if (res.error === "out_of_area") {
+        showStop("zip");
       } else if (res.error === "not_verified") {
         state.verified = false; state.token = "";
         markVerified(false);
@@ -921,6 +935,7 @@
     saveAnswers();
     if (!served(z)) { showStop("zip"); return; }
     $("zip").value = z;                         // prefill the ZIP on the last screen
+    if (z !== availZip) loadAvailability(z);    // open times for this area
     next();
   }
   if (zipInput) {
@@ -997,6 +1012,7 @@
   current = startAt;
   show(startAt, false);
 
-  loadAvailability();
+  if (OFFLINE) loadAvailability();
+  else if (zipInput && served(zipInput.value)) loadAvailability(zipInput.value);   // ZIP restored after a refresh
 })();
 
