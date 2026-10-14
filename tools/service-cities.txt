@@ -70,3 +70,44 @@ Hermosa Beach
 El Segundo
 Lawndale
 Lomita
+Palm Springs
+Cathedral City
+Rancho Mirage
+Thousand Palms
+Indio
+La Quinta
+Coachella
+Palm Desert
+Bermuda Dunes
+Mecca
+Oasis
+Desert Edge
+Garnet
+Desert Hot Springs
+Morongo Valley
+Yucca Valley
+Joshua Tree
+Twentynine Palms
+Desert Palms
+Cabazon
+Banning
+Beaumont
+Cherry Valley
+Calimesa
+Yucaipa
+Mentone
+Redlands
+Hemet
+Valle Vista
+East Hemet
+Winchester
+Homeland
+Menifee
+French Valley
+Lake Elsinore
+Perris
+Mead Valley
+Victorville
+Hesperia
+Apple Valley
+Oak Hills
