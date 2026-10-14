@@ -23,7 +23,20 @@ var DEFAULTS = {
   'Use my Google Calendar (yes/no)': 'yes'
 };
 var LEAD_HEADERS = ['Received', 'Status', 'Appointment date', 'Time', 'Name', 'Phone', 'Phone verified',
-  'Street', 'Unit', 'City', 'State', 'ZIP', 'Map', 'Yard', 'Interested in', 'Language', 'Consent', 'Notes', 'Homeowner'];
+  'Street', 'Unit', 'City', 'State', 'ZIP', 'Map', 'Yard', 'Interested in', 'Language', 'Consent', 'Notes', 'Homeowner', 'Service'];
+// Answers from the /roofing/ estimate page
+var ROOF = {
+  need: { 'leak-repair': 'Leak repair', 'replacement': 'Roof replacement', 'fascia-repair': 'Fascia repair', 'not-sure': 'Not sure what they need' },
+  type: { shingle: 'Shingle roof', tile: 'Tile roof', flat: 'Flat or foam roof', metal: 'Metal roof', 'not-sure': 'Roof type not sure' },
+  leaking: { yes: 'Leaking now', no: 'Not leaking now', 'not-sure': 'Not sure if leaking' },
+  stories: { '1': '1 story', '2': '2 stories', '3+': '3+ stories' }
+};
+function isRoof_(b) { return !!b && b.service === 'roofing'; }
+/** "Leak repair; Tile roof; Leaking now; 1 story" (known answers only) */
+function roofDetails_(b) {
+  var r = (b && b.roof && typeof b.roof === 'object') ? b.roof : {};
+  return ['need', 'type', 'leaking', 'stories'].map(function (k) { return ROOF[k][r[k]]; }).filter(Boolean).join('; ');
+}
 var BLOCK_HEADERS = ['Date', 'End date (optional)', 'From time (optional)', 'To time (optional)', 'Note'];
 var DAY_NAMES = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
@@ -338,7 +351,9 @@ function book_(b) {
 
   var yards = { backyard: 'Backyard', front: 'Front yard', both: 'Both' };
   var okServices = ['turf', 'pavers', 'concrete', 'gravel', 'hardscape', 'full-remodel', 'financing'];
-  if (!clean_(b.fullName).match(/\S+\s+\S+/) || !validPhone_(b.phone) || !yards[b.yard] || b.consent !== true ||
+  var roof = isRoof_(b);
+  var jobOk = roof ? !!(b.roof && ROOF.need[b.roof.need]) : !!yards[b.yard];
+  if (!clean_(b.fullName).match(/\S+\s+\S+/) || !validPhone_(b.phone) || !jobOk || b.consent !== true ||
       !/^\d{4}-\d{2}-\d{2}$/.test(b.date) || !/^\d{2}:\d{2}$/.test(b.time) ||
       clean_(b.street).length < 5 || clean_(b.city).length < 2 || !/^\d{5}(-\d{4})?$/.test(String(b.zip || ''))) {
     return { ok: false, error: 'invalid' };
@@ -363,13 +378,14 @@ function book_(b) {
     var map = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(address);
 
     var owner = owner_(b.homeowner);
+    var details = roof ? roofDetails_(b) : services.join(', ');
     var leads = SpreadsheetApp.getActive().getSheetByName('Leads');
     ensureHeaders_(leads);
     leads.appendRow([
       new Date(), 'New', b.date, label_(b.time), clean_(b.fullName, 80), b.phone, verifyOn ? 'Yes' : 'No (verification off)',
       clean_(b.street), clean_(b.unit, 20), clean_(b.city, 60), clean_(b.state, 2) || 'CA', clean_(b.zip, 10), map,
-      yards[b.yard], services.join(', '), b.lang === 'es' ? 'Spanish' : 'English',
-      'Agreed ' + CONSENT_VERSION + ' (call/text about estimate; terms & privacy)', '', owner
+      roof ? 'Roofing' : yards[b.yard], details, b.lang === 'es' ? 'Spanish' : 'English',
+      'Agreed ' + CONSENT_VERSION + ' (call/text about estimate; terms & privacy)', '', owner, roof ? 'Roofing' : 'Landscaping'
     ]);
     SpreadsheetApp.flush();
 
@@ -377,10 +393,11 @@ function book_(b) {
       try {
         var start = toDate_(b.date, b.time);
         var ev = CalendarApp.getDefaultCalendar().createEvent(
-          'Estimate: ' + clean_(b.fullName, 80) + ' (' + yards[b.yard] + ')',
+          roof ? 'Roof estimate: ' + clean_(b.fullName, 80) + ' (' + ROOF.need[b.roof.need] + ')'
+               : 'Estimate: ' + clean_(b.fullName, 80) + ' (' + yards[b.yard] + ')',
           start, new Date(start.getTime() + s.lengthMin * 60000),
-          { location: address, description: 'Phone: ' + b.phone + '\nHomeowner: ' + owner + '\nInterested in: ' + (services.join(', ') || '-') +
-            '\nLanguage: ' + (b.lang === 'es' ? 'Spanish' : 'English') + '\nMap: ' + map + '\nBooked on desertgreenbuilders.com' });
+          { location: address, description: 'Phone: ' + b.phone + '\nHomeowner: ' + owner + (roof ? '\nRoof: ' : '\nInterested in: ') + (details || '-') +
+            '\nLanguage: ' + (b.lang === 'es' ? 'Spanish' : 'English') + '\nMap: ' + map + '\nBooked on desertgreenbuilders.com' + (roof ? '/roofing (all homeowners asked to be present)' : '') });
         calendarEventId = ev.getId().replace(/@google\.com$/, '');   // Calendar API id, as the CRM stores it
       } catch (err) { console.error('Calendar event failed', err); }
     }
@@ -389,7 +406,7 @@ function book_(b) {
       booking_id: Utilities.getUuid(),
       full_name: clean_(b.fullName, 80), phone: b.phone, address: address, city: clean_(b.city, 60),
       scheduled_at: toDate_(b.date, b.time).toISOString(), calendar_event_id: calendarEventId || null,
-      homeowner: owner, yard: yards[b.yard], interests: services.join(', '),
+      homeowner: owner, yard: roof ? null : yards[b.yard], interests: roof ? 'Roofing: ' + details : services.join(', '),
       language: b.lang === 'es' ? 'Spanish' : 'English', phone_verified: verifyOn
     };
     // Ad attribution captured on the landing page (assets/js/attribution.js):
@@ -447,7 +464,7 @@ function notify_(s, b, date, time, verified) {
   var nice = Utilities.formatDate(toDate_(date, time), TZ, 'EEEE, MMMM d') + ' at ' + label_(time);
   var address = [b.street, b.unit, b.city, (b.state || 'CA') + ' ' + b.zip].filter(String).join(', ');
   var lines = [
-    'New free estimate booked',
+    isRoof_(b) ? 'New free ROOF estimate booked' : 'New free estimate booked',
     '',
     'When: ' + nice,
     'Name: ' + b.fullName,
@@ -455,15 +472,15 @@ function notify_(s, b, date, time, verified) {
     'Address: ' + address,
     'Map: https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(address),
     'Homeowner: ' + owner_(b.homeowner),
-    'Yard: ' + (yards[b.yard] || b.yard),
-    'Interested in: ' + ((b.services || []).join(', ') || '-'),
+    isRoof_(b) ? 'Roofing: ' + (roofDetails_(b) || '-') : 'Yard: ' + (yards[b.yard] || b.yard),
+    isRoof_(b) ? 'Booked on the roofing page. All homeowners were asked to be there.' : 'Interested in: ' + ((b.services || []).join(', ') || '-'),
     'Language: ' + (b.lang === 'es' ? 'Spanish' : 'English'),
     '',
     'All leads: ' + SpreadsheetApp.getActive().getUrl()
   ];
   MailApp.sendEmail({
     to: s.email,
-    subject: 'New estimate: ' + b.fullName + ', ' + nice,
+    subject: (isRoof_(b) ? 'New ROOF estimate: ' : 'New estimate: ') + b.fullName + ', ' + nice,
     body: lines.join('\n'),
     name: 'Desert Green Builders website'
   });

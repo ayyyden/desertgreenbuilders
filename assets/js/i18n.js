@@ -177,6 +177,8 @@
 
     "legal.back": "Volver al inicio"
   };
+  // Pages with their own text (e.g. /roofing/) define window.DGB_ES_EXTRA before this file loads.
+  if (window.DGB_ES_EXTRA) for (var extraKey in window.DGB_ES_EXTRA) ES[extraKey] = window.DGB_ES_EXTRA[extraKey];
 
   var META = {
     en: {

@@ -38,8 +38,7 @@
       entries.forEach(function (e) { e.isIntersecting ? visible.add(e.target) : visible.delete(e.target); });
       bar.classList.toggle("is-hidden", visible.size > 0);
     }, { rootMargin: "0px 0px -20% 0px" });
-    io.observe(document.getElementById("book"));
-    io.observe(document.querySelector(".site-footer"));
+    [document.getElementById("book"), document.querySelector(".site-footer")].forEach(function (el) { if (el) io.observe(el); });
   }
 
   /* ---------- The yard build ---------- */
@@ -90,7 +89,7 @@
       invalidateOnRefresh: true,
       onUpdate: function (self) {
         if (progressBar) progressBar.style.transform = "scaleX(" + self.progress.toFixed(4) + ")";
-        if (self.progress > 0.8 && !flicker) flicker = scene.flicker();
+        if (self.progress > 0.8 && !flicker && scene.flicker) flicker = scene.flicker();
         else if (self.progress < 0.75 && flicker) { flicker.kill(); flicker = null; }
       }
     });

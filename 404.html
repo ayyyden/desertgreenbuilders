@@ -31,7 +31,11 @@
     <img src="/assets/img/emblem.webp" width="240" height="132" alt="" style="margin:0 auto 24px;mix-blend-mode:multiply">
     <h1>This page doesn't exist.</h1>
     <p style="margin:12px 0 28px">Esta página no existe.</p>
-    <a class="btn btn--sun" href="/">Go to the home page / Ir al inicio</a>
+    <a class="btn btn--sun" id="homeLink" href="/">Go to the home page / Ir al inicio</a>
+    <script>
+      // Visitors who got lost inside /roofing/ go back to the roofing home page.
+      if (location.pathname.indexOf("/roofing") === 0) document.getElementById("homeLink").href = "/roofing/";
+    </script>
   </main>
   <script src="/assets/js/attribution.js"></script>
 </body>
