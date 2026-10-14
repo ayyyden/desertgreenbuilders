@@ -84,7 +84,7 @@
         <button class="lang-toggle" type="button" data-lang-toggle>
           <span data-i18n="lang.switch">Español</span>
         </button>
-        <a class="btn btn--sun btn--sm header-cta" href="#book" data-i18n="cta.bookShort">Free estimate</a>
+        <a class="btn btn--sun btn--sm header-cta" href="estimate.html" data-i18n="cta.bookShort">Free estimate</a>
       </div>
     </div>
   </header>
@@ -105,7 +105,7 @@
             </h1>
             <p class="hero__sub" data-i18n="hero.sub">Artificial turf, pavers, concrete, gravel and full front and backyard remodels. Licensed, insured and bonded.</p>
             <div class="hero__actions">
-              <a class="btn btn--sun" href="#book" data-i18n="cta.book">Book my free estimate</a>
+              <a class="btn btn--sun" href="estimate.html" data-i18n="cta.book">Book my free estimate</a>
               <a class="btn btn--ghost" href="tel:+17605482781" data-i18n="cta.call">Call (760) 548-2781</a>
             </div>
             <p class="hero__hint" aria-hidden="true">
@@ -124,7 +124,7 @@
             <li class="caption caption--final" data-stage="7">
               <h2 data-i18n="cap.7.t">From dirt to done.</h2>
               <p data-i18n="cap.7.d">Front yard, backyard or both. It all starts with a free estimate.</p>
-              <a class="btn btn--sun" href="#book" data-i18n="cta.book">Book my free estimate</a>
+              <a class="btn btn--sun" href="estimate.html" data-i18n="cta.book">Book my free estimate</a>
             </li>
           </ol>
         </div>
@@ -304,7 +304,7 @@
             <span data-i18n="fin.l2">Nothing to pay for up to 24 months.<sup>*</sup></span>
           </h2>
           <p class="financing__lede" data-i18n="fin.lede">Get the yard now and pay later with 0% APR promotional financing, on approved credit for qualifying applications. Ask about it at your free estimate.</p>
-          <a class="btn btn--sun" href="#book" data-i18n="fin.cta">Ask about financing</a>
+          <a class="btn btn--sun" href="estimate.html" data-i18n="fin.cta">Ask about financing</a>
         </div>
         <details class="financing__fine" id="finDisclosure">
           <summary>
@@ -327,7 +327,7 @@
           <li class="step">
             <span class="step__num" aria-hidden="true">1</span>
             <h3 data-i18n="how.1.t">Pick a time</h3>
-            <p data-i18n="how.1.d">Choose a day and time below. It takes about a minute.</p>
+            <p data-i18n="how.1.d">Answer a few questions and pick a time. It takes about a minute.</p>
           </li>
           <li class="step">
             <span class="step__num" aria-hidden="true">2</span>
@@ -348,198 +348,14 @@
       </div>
     </section>
 
-    <!-- 6. Booking -->
-    <section class="book section" id="book" aria-labelledby="bookTitle">
-      <div class="wrap book__wrap">
-        <div class="book__lang">
-          <button class="lang-big" type="button" data-lang-toggle>
-            <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z"/></svg>
-            <span data-i18n="lang.big">Ver todo en español</span>
-          </button>
+    <!-- 6. Book: the questions are on their own page (estimate.html); old #book links forward there -->
+    <section class="cta-band" id="book" aria-labelledby="bookTitle">
+      <div class="wrap cta-band__inner">
+        <div>
+          <h2 class="cta-band__title" id="bookTitle" data-i18n="book.title">Book your free on&#8209;site estimate</h2>
+          <p class="cta-band__lede" data-i18n="book.lede">Takes about a minute. No obligation and no pressure.</p>
         </div>
-
-        <div class="section__head">
-          <h2 class="section__title" id="bookTitle" data-i18n="book.title">Book your free on‑site estimate</h2>
-          <p class="section__lede" data-i18n="book.lede">Takes about a minute. No obligation and no pressure.</p>
-        </div>
-
-        <form class="form" id="bookingForm" novalidate>
-          <div class="form__status" id="formStatus" role="alert" hidden></div>
-
-          <!-- Contact -->
-          <fieldset class="fs">
-            <legend data-i18n="f.you">About you</legend>
-            <div class="field">
-              <label for="fullName" data-i18n="f.name">Full name</label>
-              <input id="fullName" name="fullName" type="text" autocomplete="name" required maxlength="80">
-              <p class="field__err" id="fullName-err"></p>
-            </div>
-
-            <div class="field">
-              <label for="phone" data-i18n="f.phone">Mobile phone number</label>
-              <div class="phone-row">
-                <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(760) 555-0123" required aria-describedby="phone-help phone-err">
-                <button class="btn btn--dark btn--sm" type="button" id="sendCode" data-i18n="f.sendCode">Text me a code</button>
-              </div>
-              <p class="field__help" id="phone-help" data-i18n="f.phoneHelp">We'll text you a 6-digit code to confirm your number.</p>
-              <p class="field__err" id="phone-err"></p>
-
-              <div class="code-row" id="codeRow" hidden>
-                <label for="code" data-i18n="f.code">Enter the 6-digit code</label>
-                <div class="phone-row">
-                  <input id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}">
-                  <button class="btn btn--dark btn--sm" type="button" id="verifyCode" data-i18n="f.verify">Verify</button>
-                </div>
-                <button class="linkish" type="button" id="resendCode" disabled></button>
-                <p class="field__err" id="code-err"></p>
-              </div>
-              <p class="verified" id="phoneVerified" hidden>
-                <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m7.5 12.5 3 3 6-6.5"/></svg>
-                <span data-i18n="f.verified">Phone number verified</span>
-                <button class="linkish" type="button" id="changePhone" data-i18n="f.change">Change</button>
-              </p>
-            </div>
-
-            <div class="field">
-              <p class="field__label" id="homeownerLabel" data-i18n="f.owner">Are you the homeowner?</p>
-              <div class="yesno" role="radiogroup" aria-labelledby="homeownerLabel" aria-describedby="homeowner-err">
-                <label class="slot"><input type="radio" name="homeowner" value="yes" required><span data-i18n="f.yes">Yes</span></label>
-                <label class="slot"><input type="radio" name="homeowner" value="no"><span data-i18n="f.no">No</span></label>
-              </div>
-              <p class="field__err" id="homeowner-err"></p>
-            </div>
-          </fieldset>
-
-          <!-- Address -->
-          <fieldset class="fs">
-            <legend data-i18n="f.where">Where's the project?</legend>
-            <div class="field field--combo">
-              <label for="street" data-i18n="f.street">Street address</label>
-              <div class="combo" id="addrCombo">
-                <input id="street" name="street" type="text" autocomplete="address-line1" required
-                  role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="addrList" data-i18n-attr="placeholder:f.streetPh" placeholder="Start typing your address">
-                <ul class="combo__list" id="addrList" role="listbox" hidden></ul>
-              </div>
-              <p class="field__err" id="street-err"></p>
-            </div>
-            <div class="field-grid">
-              <div class="field">
-                <label for="unit" data-i18n="f.unit">Apt or unit (optional)</label>
-                <input id="unit" name="unit" type="text" autocomplete="address-line2" maxlength="20">
-              </div>
-              <div class="field">
-                <label for="city" data-i18n="f.city">City</label>
-                <input id="city" name="city" type="text" autocomplete="address-level2" required maxlength="60">
-                <p class="field__err" id="city-err"></p>
-              </div>
-              <div class="field">
-                <label for="zip" data-i18n="f.zip">ZIP code</label>
-                <input id="zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" required maxlength="10">
-                <p class="field__err" id="zip-err"></p>
-              </div>
-            </div>
-            <input type="hidden" id="state" name="state" value="CA">
-            <input type="hidden" id="lat" name="lat">
-            <input type="hidden" id="lon" name="lon">
-          </fieldset>
-
-          <!-- Project -->
-          <fieldset class="fs">
-            <legend data-i18n="f.project">Which part of the yard?</legend>
-            <div class="choice-grid" role="radiogroup" aria-describedby="yard-err">
-              <label class="choice">
-                <input type="radio" name="yard" value="backyard" required>
-                <span class="choice__art" aria-hidden="true">
-                  <svg viewBox="0 0 64 40"><path d="M6 34h52" /><path d="M14 34V18l18-12 18 12v16"/><rect class="fill-green" x="2" y="34" width="60" height="5" rx="1"/><path d="M50 22h10v12"/></svg>
-                </span>
-                <span class="choice__label" data-i18n="f.back">Backyard</span>
-              </label>
-              <label class="choice">
-                <input type="radio" name="yard" value="front">
-                <span class="choice__art" aria-hidden="true">
-                  <svg viewBox="0 0 64 40"><path d="M6 34h52"/><path d="M14 34V18l18-12 18 12v16"/><path d="M28 34v-9h8v9"/><rect class="fill-green" x="2" y="34" width="60" height="5" rx="1"/></svg>
-                </span>
-                <span class="choice__label" data-i18n="f.front">Front yard</span>
-              </label>
-              <label class="choice">
-                <input type="radio" name="yard" value="both">
-                <span class="choice__art" aria-hidden="true">
-                  <svg viewBox="0 0 64 40"><path d="M14 34V18l18-12 18 12v16"/><path d="M28 34v-9h8v9"/><rect class="fill-green" x="2" y="34" width="60" height="5" rx="1"/><rect class="fill-green" x="2" y="2" width="8" height="30" rx="1"/><rect class="fill-green" x="54" y="2" width="8" height="30" rx="1"/></svg>
-                </span>
-                <span class="choice__label" data-i18n="f.both">Both</span>
-              </label>
-            </div>
-            <p class="field__err" id="yard-err"></p>
-
-            <p class="fs__sub" id="svcLabel" data-i18n="f.interest">What are you thinking about? (optional)</p>
-            <div class="chips" role="group" aria-labelledby="svcLabel">
-              <label class="chip"><input type="checkbox" name="services" value="turf"><span data-i18n="svc.turf.t">Artificial turf</span></label>
-              <label class="chip"><input type="checkbox" name="services" value="pavers"><span data-i18n="svc.pavers.t">Pavers</span></label>
-              <label class="chip"><input type="checkbox" name="services" value="concrete"><span data-i18n="svc.concrete.t">Concrete</span></label>
-              <label class="chip"><input type="checkbox" name="services" value="gravel"><span data-i18n="svc.gravel.t">Gravel and rock</span></label>
-              <label class="chip"><input type="checkbox" name="services" value="hardscape"><span data-i18n="svc.hard.t">Hardscape</span></label>
-              <label class="chip"><input type="checkbox" name="services" value="full-remodel"><span data-i18n="f.full">Full remodel</span></label>
-            </div>
-          </fieldset>
-
-          <!-- Schedule -->
-          <fieldset class="fs">
-            <legend data-i18n="f.when">Pick a day and time</legend>
-            <p class="fs__sub" data-i18n="f.whenHelp">We visit Sunday through Thursday. Days that are full are grayed out.</p>
-
-            <div class="cal" id="calendar" aria-describedby="date-err">
-              <div class="cal__head">
-                <button class="cal__nav" type="button" id="calPrev" data-i18n-attr="aria-label:cal.prev" aria-label="Previous month">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg>
-                </button>
-                <p class="cal__month" id="calMonth" aria-live="polite"></p>
-                <button class="cal__nav" type="button" id="calNext" data-i18n-attr="aria-label:cal.next" aria-label="Next month">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
-                </button>
-              </div>
-              <div class="cal__dow" id="calDow" aria-hidden="true"></div>
-              <div class="cal__grid" id="calGrid" role="grid"></div>
-              <p class="cal__loading" id="calLoading" data-i18n="cal.loading">Loading open days…</p>
-            </div>
-            <p class="field__err" id="date-err"></p>
-
-            <div class="slots" id="slotsWrap" hidden>
-              <p class="fs__sub" id="slotsLabel"></p>
-              <div class="slots__list" id="slots" role="radiogroup" aria-labelledby="slotsLabel"></div>
-            </div>
-            <p class="field__err" id="time-err"></p>
-          </fieldset>
-
-          <!-- Spam trap: real people never see or fill this -->
-          <div class="hp" aria-hidden="true">
-            <label for="company">Company</label>
-            <input id="company" name="company" type="text" tabindex="-1" autocomplete="off">
-          </div>
-
-          <div class="consent field">
-            <label class="check">
-              <input type="checkbox" id="consent" name="consent" required>
-              <span data-i18n-html="f.consent">I agree that Desert Green Builders may call or text me at the number above about my estimate. Consent is not a condition of purchase. Message and data rates may apply. Reply STOP to opt out. I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span>
-            </label>
-            <p class="field__err" id="consent-err"></p>
-          </div>
-
-          <button class="btn btn--sun btn--block btn--lg" type="submit" id="submitBtn">
-            <span data-i18n="f.submit">Book my free estimate</span>
-          </button>
-          <p class="form__fine" data-i18n="f.fine">Free and no obligation. We'll call to confirm your appointment.</p>
-        </form>
-
-        <div class="success" id="bookingSuccess" hidden tabindex="-1">
-          <svg class="success__mark" aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="29"/><path d="m19 33 9 9 18-20"/></svg>
-          <h3 data-i18n="ok.title">You're booked!</h3>
-          <p class="success__when" id="successWhen"></p>
-          <p data-i18n="ok.body">We'll call you before the visit to confirm. Need to change something? Just call us.</p>
-          <div class="success__actions">
-            <button class="btn btn--dark" type="button" id="addToCal" data-i18n="ok.cal">Add to my calendar</button>
-            <a class="btn btn--ghost-dark" href="tel:+17605482781" data-i18n="cta.call">Call (760) 548-2781</a>
-          </div>
-        </div>
+        <a class="btn btn--sun btn--lg" href="estimate.html" data-i18n="cta.start">Start my free estimate</a>
       </div>
     </section>
 
@@ -585,7 +401,7 @@
       <div class="wrap closer__inner">
         <h2 class="closer__title" id="closerTitle" data-i18n="close.title">Let's see what your yard could be.</h2>
         <div class="closer__actions">
-          <a class="btn btn--dark btn--lg" href="#book" data-i18n="cta.book">Book my free estimate</a>
+          <a class="btn btn--dark btn--lg" href="estimate.html" data-i18n="cta.book">Book my free estimate</a>
           <a class="btn btn--ghost-dark btn--lg" href="tel:+17605482781" data-i18n="cta.call">Call (760) 548-2781</a>
         </div>
       </div>
@@ -615,7 +431,7 @@
       <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2Z"/></svg>
       <span data-i18n="bar.call">Call</span>
     </a>
-    <a class="btn btn--sun" href="#book" data-i18n="cta.bookShort">Free estimate</a>
+    <a class="btn btn--sun" href="estimate.html" data-i18n="cta.bookShort">Free estimate</a>
   </div>
 
   <script src="assets/js/attribution.js"></script>
@@ -625,7 +441,6 @@
   <script src="assets/vendor/ScrollTrigger.min.js" defer></script>
   <script src="assets/js/yard.js" defer></script>
   <script src="assets/js/main.js" defer></script>
-  <script src="assets/js/booking.js" defer></script>
   <script src="assets/js/projects.js" defer></script>
 </body>
 </html>

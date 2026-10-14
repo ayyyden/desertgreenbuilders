@@ -106,7 +106,7 @@
     "how.title": "Cómo funciona",
     "how.lede": "Sin presión y sin sorpresas. Usted decide en cada paso.",
     "how.1.t": "Escoja un horario",
-    "how.1.d": "Elija el día y la hora aquí abajo. Toma como un minuto.",
+    "how.1.d": "Conteste unas preguntas y escoja un horario. Toma como un minuto.",
     "how.2.t": "Vamos a su casa",
     "how.2.d": "Recorremos el patio con usted, tomamos medidas y platicamos ideas. Gratis.",
     "how.3.t": "Reciba su estimado",
@@ -175,6 +175,19 @@
     "foot.rights": "Todos los derechos reservados.",
     "foot.license": "Licencia de contratista de CA #",
 
+    "w.back": "Atrás",
+    "w.continue": "Continuar",
+    "w.notsure": "No estoy seguro",
+    "w.contact.q": "Último paso: ¿cómo le contactamos?",
+    "w.street": "Dirección de la casa",
+    "w.ok.title": "¡Listo, ya tiene su cita!",
+    "w.ok.see": "Le vemos el",
+    "w.ok.owners": "Por favor asegúrese de que todos los dueños de la casa estén presentes en la cita.",
+    "w.ok.call": "Le llamaremos antes de la visita para confirmar. ¿Necesita cambiar algo? Solo llámenos.",
+    "w.yard.q": "¿Qué parte del patio quiere arreglar?",
+    "w.svc.q": "¿Qué le interesa?",
+    "w.svc.help": "Escoja todo lo que aplique, o siga si todavía no está seguro.",
+    "cta.start": "Empezar mi estimado gratis",
     "legal.back": "Volver al inicio"
   };
   // Pages with their own text (e.g. /roofing/) define window.DGB_ES_EXTRA before this file loads.

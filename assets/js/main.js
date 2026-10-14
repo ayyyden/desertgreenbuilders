@@ -128,38 +128,21 @@
     });
   }
 
-  /* ---------- Opening the page at #book ----------
-     The browser jumps to #book before the pinned yard scene adds its scroll length above it,
-     so the form ends up far below the screen. Jump again once the layout has settled
-     (after the pin, then after fonts and images), unless the visitor has started scrolling. */
+  /* ---------- Old #book links ----------
+     Booking moved to its own page (estimate.html). Ads and bookmarks that still point at
+     /#book go straight there, keeping any ad tags in the query string. */
   function landOnBooking() {
-    if (location.hash !== "#book") return;
-    if ("scrollRestoration" in history) history.scrollRestoration = "manual";   // refresh: don't restore an old position
-    var userMoved = false;
-    ["wheel", "touchstart", "keydown", "mousedown"].forEach(function (ev) {
-      window.addEventListener(ev, function () { userMoved = true; }, { once: true, passive: true });
-    });
-    function jump() {
-      if (userMoved) return;
-      var form = document.getElementById("bookingForm");
-      var target = form && !form.hidden ? form : document.getElementById("bookingSuccess");
-      if (!target || target.hidden) target = document.getElementById("book");
-      var top = target.getBoundingClientRect().top + window.scrollY - header.offsetHeight - 12;
-      window.scrollTo({ top: Math.max(0, top), behavior: "instant" });
-    }
-    jump();
-    requestAnimationFrame(jump);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (window.ScrollTrigger) ScrollTrigger.refresh(); jump(); });
-    window.addEventListener("load", function () { jump(); setTimeout(jump, 300); });
+    if (location.hash !== "#book" || !document.querySelector('a[href="estimate.html"]')) return;
+    location.replace("estimate.html" + location.search);
   }
 
   function start() {
+    landOnBooking();
     if (window.gsap && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
     setup();
     intro();
     swatches();
     stepsLine();
-    landOnBooking();
     var t;
     window.addEventListener("resize", function () {
       clearTimeout(t);

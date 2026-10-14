@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en" data-title-es="Estimado gratis | Desert Green Builders" data-desc-es="Conteste unas preguntas, escoja un día y agende su estimado gratis en su casa.">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Free Estimate | Desert Green Builders</title>
+  <meta name="description" content="Answer a few quick questions, pick a day and book your free on-site estimate for turf, pavers, concrete, gravel or a full yard remodel.">
+  <link rel="canonical" href="https://desertgreenbuilders.com/estimate.html">
+  <meta name="theme-color" content="#3F5A27">
+  <meta name="color-scheme" content="light">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/estimate.css">
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1041541538324909');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1041541538324909&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
+</head>
+<body class="wiz-page">
+  <a class="skip-link" href="#main" data-i18n="skip">Skip to content</a>
+  <header class="wiz-header">
+    <div class="site-header__inner">
+      <a class="brand" href="index.html">
+        <img class="brand__mark" src="assets/img/emblem.webp" width="480" height="265" alt="">
+        <span class="brand__name">Desert Green <span>Builders</span></span>
+      </a>
+      <div class="site-header__actions">
+        <button class="lang-toggle" type="button" data-lang-toggle><span data-i18n="lang.switch">Español</span></button>
+        <a class="wiz-call" href="tel:+17605482781" data-i18n-attr="aria-label:cta.call" aria-label="Call (760) 548-2781">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2Z"/></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wiz" id="main">
+    <div class="wiz__card">
+      <div class="wiz__top" id="wizTop">
+        <button class="wiz__back" type="button" id="wizBack" data-i18n-attr="aria-label:w.back" aria-label="Back">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg>
+        </button>
+        <div class="wiz__bar" aria-hidden="true"><span id="wizBar"></span></div>
+        <p class="wiz__count" id="wizCount" aria-live="polite"></p>
+      </div>
+
+      <form id="wizard" data-service="landscaping" novalidate>
+        <!-- 1. Which part of the yard -->
+        <section class="wiz-step" data-step="yard">
+          <h1 class="wiz-q" tabindex="-1" data-i18n="w.yard.q">Which part of the yard?</h1>
+          <div class="opts" role="radiogroup" aria-label="Which part of the yard?">
+            <label class="opt"><input type="radio" name="yard" value="backyard">
+              <span class="opt__icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M8 36V22l16-11 16 11v14"/><path d="M4 40h40"/><path d="M34 26h8v14"/></svg></span>
+              <span class="opt__label" data-i18n="f.back">Backyard</span></label>
+            <label class="opt"><input type="radio" name="yard" value="front">
+              <span class="opt__icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M8 36V22l16-11 16 11v14"/><path d="M4 40h40"/><path d="M20 40V29h8v11"/></svg></span>
+              <span class="opt__label" data-i18n="f.front">Front yard</span></label>
+            <label class="opt"><input type="radio" name="yard" value="both">
+              <span class="opt__icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M12 36V22l12-9 12 9v14"/><path d="M4 40h40"/><path d="M21 40v-9h6v9"/><path d="M5 34V12M43 34V12"/></svg></span>
+              <span class="opt__label" data-i18n="f.both">Both</span></label>
+          </div>
+        </section>
+
+        <!-- 2. What they're thinking about (pick any) -->
+        <section class="wiz-step" data-step="services" hidden>
+          <h1 class="wiz-q" tabindex="-1" data-i18n="w.svc.q">What are you thinking about?</h1>
+          <p class="wiz-help" data-i18n="w.svc.help">Pick all that apply, or keep going if you're not sure yet.</p>
+          <div class="opts" role="group" aria-label="What are you thinking about?">
+            <label class="opt opt--check"><input type="checkbox" name="services" value="turf">
+              <span class="opt__icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M6 40h36"/><path d="M10 40c0-8 2-14 4-18M16 40c0-10 1-16 2-22M22 40c0-9 2-15 4-20M28 40c0-10 1-17 3-22M34 40c0-8 2-13 4-16"/></svg></span>
+              <span class="opt__label" data-i18n="svc.turf.t">Artificial turf</span></label>
+            <label class="opt opt--check"><input type="checkbox" name="services" value="pavers">
+              <span class="opt__icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M6 12h36v24H6zM6 24h36M18 12v12M30 12v12M12 24v12M24 24v12M36 24v12"/></svg></span>
+              <span class="opt__label" data-i18n="svc.pavers.t">Pavers</span></label>
+            <label class="opt opt--check"><input type="checkbox" name="services" value="concrete">
+              <span class="opt__icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M6 14h36v20H6zM24 14v20"/><path d="M12 20h.5M30 28h.5M17 29h.5M36 19h.5"/></svg></span>
+              <span class="opt__label" data-i18n="svc.concrete.t">Concrete</span></label>
+            <label class="opt opt--check"><input type="checkbox" name="services" value="gravel">
+              <span class="opt__icon" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="13" cy="30" r="5"/><circle cx="26" cy="33" r="4"/><circle cx="36" cy="28" r="5"/><circle cx="20" cy="22" r="3"/><circle cx="31" cy="19" r="3"/><path d="M6 40h36"/></svg></span>
+              <span class="opt__label" data-i18n="svc.gravel.t">Gravel and rock</span></label>
+            <label class="opt opt--check"><input type="checkbox" name="services" value="hardscape">
+              <span class="opt__icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M6 20h36v18H6zM6 29h36M16 20v9M28 20v9M40 20v9M10 29v9M22 29v9M34 29v9"/><path d="M4 16h40"/></svg></span>
+              <span class="opt__label" data-i18n="svc.hard.t">Hardscape</span></label>
+            <label class="opt opt--check"><input type="checkbox" name="services" value="full-remodel">
+              <span class="opt__icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M8 34V20l16-11 16 11v14"/><path d="M4 40h40"/><path d="M14 40l6-6M24 40l6-6M34 40l6-6"/></svg></span>
+              <span class="opt__label" data-i18n="f.full">Full remodel</span></label>
+          </div>
+          <button class="btn btn--sun btn--block btn--lg wiz-next" type="button" data-next data-i18n="w.continue">Continue</button>
+        </section>
+
+        <!-- 3. Homeowner -->
+        <section class="wiz-step" data-step="homeowner" hidden>
+          <h1 class="wiz-q" tabindex="-1" data-i18n="f.owner">Are you the homeowner?</h1>
+          <div class="opts opts--two" role="radiogroup" aria-label="Are you the homeowner?">
+            <label class="opt"><input type="radio" name="homeowner" value="yes">
+              <span class="opt__icon" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18"/><path d="m16 24 6 6 11-12"/></svg></span>
+              <span class="opt__label" data-i18n="f.yes">Yes</span></label>
+            <label class="opt"><input type="radio" name="homeowner" value="no">
+              <span class="opt__icon" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18"/><path d="m17 17 14 14M31 17 17 31"/></svg></span>
+              <span class="opt__label" data-i18n="f.no">No</span></label>
+          </div>
+        </section>
+
+        <!-- 4. Schedule -->
+        <section class="wiz-step" data-step="when" hidden>
+          <h1 class="wiz-q" tabindex="-1" data-i18n="f.when">Pick a day and time</h1>
+          <p class="wiz-help" data-i18n="f.whenHelp">We visit Sunday through Thursday. Days that are full are grayed out.</p>
+          <div class="cal" id="calendar">
+            <div class="cal__head">
+              <button class="cal__nav" type="button" id="calPrev" data-i18n-attr="aria-label:cal.prev" aria-label="Previous month">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg>
+              </button>
+              <p class="cal__month" id="calMonth" aria-live="polite"></p>
+              <button class="cal__nav" type="button" id="calNext" data-i18n-attr="aria-label:cal.next" aria-label="Next month">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+              </button>
+            </div>
+            <div class="cal__dow" id="calDow" aria-hidden="true"></div>
+            <div class="cal__grid" id="calGrid"></div>
+            <p class="cal__loading" id="calLoading" data-i18n="cal.loading">Loading open days…</p>
+          </div>
+          <div class="slots" id="slotsWrap" hidden>
+            <p class="fs__sub" id="slotsLabel"></p>
+            <div class="slots__list" id="slots" role="radiogroup" aria-labelledby="slotsLabel"></div>
+          </div>
+          <p class="field__err" id="when-err"></p>
+          <button class="btn btn--sun btn--block btn--lg wiz-next" type="button" id="whenNext" data-i18n="w.continue">Continue</button>
+        </section>
+
+        <!-- 5. Contact -->
+        <section class="wiz-step" data-step="contact" hidden>
+          <h1 class="wiz-q" tabindex="-1" data-i18n="w.contact.q">Last step: how do we reach you?</h1>
+          <div class="form__status" id="formStatus" role="alert" hidden></div>
+
+          <div class="field">
+            <label for="fullName" data-i18n="f.name">Full name</label>
+            <input id="fullName" name="fullName" type="text" autocomplete="name" required maxlength="80">
+            <p class="field__err" id="fullName-err"></p>
+          </div>
+
+          <div class="field">
+            <label for="phone" data-i18n="f.phone">Mobile phone number</label>
+            <div class="phone-row">
+              <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(760) 555-0123" required aria-describedby="phone-help phone-err">
+              <button class="btn btn--dark btn--sm" type="button" id="sendCode" data-i18n="f.sendCode">Text me a code</button>
+            </div>
+            <p class="field__help" id="phone-help" data-i18n="f.phoneHelp">We'll text you a 6-digit code to confirm your number.</p>
+            <p class="field__err" id="phone-err"></p>
+            <div class="code-row" id="codeRow" hidden>
+              <label for="code" data-i18n="f.code">Enter the 6-digit code</label>
+              <div class="phone-row">
+                <input id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}">
+                <button class="btn btn--dark btn--sm" type="button" id="verifyCode" data-i18n="f.verify">Verify</button>
+              </div>
+              <button class="linkish" type="button" id="resendCode" disabled></button>
+              <p class="field__err" id="code-err"></p>
+            </div>
+            <p class="verified" id="phoneVerified" hidden>
+              <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m7.5 12.5 3 3 6-6.5"/></svg>
+              <span data-i18n="f.verified">Phone number verified</span>
+              <button class="linkish" type="button" id="changePhone" data-i18n="f.change">Change</button>
+            </p>
+          </div>
+
+          <div class="field field--combo">
+            <label for="street" data-i18n="w.street">Address of the home</label>
+            <div class="combo" id="addrCombo">
+              <input id="street" name="street" type="text" autocomplete="address-line1" required
+                role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="addrList" data-i18n-attr="placeholder:f.streetPh" placeholder="Start typing your address">
+              <ul class="combo__list" id="addrList" role="listbox" hidden></ul>
+            </div>
+            <p class="field__err" id="street-err"></p>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="unit" data-i18n="f.unit">Apt or unit (optional)</label>
+              <input id="unit" name="unit" type="text" autocomplete="address-line2" maxlength="20">
+            </div>
+            <div class="field">
+              <label for="city" data-i18n="f.city">City</label>
+              <input id="city" name="city" type="text" autocomplete="address-level2" required maxlength="60">
+              <p class="field__err" id="city-err"></p>
+            </div>
+            <div class="field">
+              <label for="zip" data-i18n="f.zip">ZIP code</label>
+              <input id="zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" required maxlength="10">
+              <p class="field__err" id="zip-err"></p>
+            </div>
+          </div>
+          <input type="hidden" id="state" name="state" value="CA">
+          <input type="hidden" id="lat" name="lat">
+          <input type="hidden" id="lon" name="lon">
+
+          <div class="hp" aria-hidden="true">
+            <label for="company">Company</label>
+            <input id="company" name="company" type="text" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="consent field">
+            <label class="check">
+              <input type="checkbox" id="consent" name="consent" required>
+              <span data-i18n-html="f.consent">I agree that Desert Green Builders may call or text me at the number above about my estimate. Consent is not a condition of purchase. Message and data rates may apply. Reply STOP to opt out. I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span>
+            </label>
+            <p class="field__err" id="consent-err"></p>
+          </div>
+
+          <button class="btn btn--sun btn--block btn--lg" type="submit" id="submitBtn">
+            <span data-i18n="f.submit">Book my free estimate</span>
+          </button>
+          <p class="form__fine" data-i18n="f.fine">Free and no obligation. We'll call to confirm your appointment.</p>
+        </section>
+      </form>
+
+      <section class="success wiz-done" id="bookingSuccess" hidden tabindex="-1">
+        <svg class="success__mark" aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="29"/><path d="m19 33 9 9 18-20"/></svg>
+        <h1 data-i18n="w.ok.title">You're all set!</h1>
+        <p class="success__when"><span data-i18n="w.ok.see">We'll see you on</span> <span id="successWhen"></span></p>
+        <p class="wiz-done__owners" data-i18n="w.ok.owners">Please make sure all homeowners are there for the meeting.</p>
+        <p data-i18n="w.ok.call">We'll call you before the visit to confirm. Need to change something? Just call us.</p>
+        <div class="success__actions">
+          <button class="btn btn--dark" type="button" id="addToCal" data-i18n="ok.cal">Add to my calendar</button>
+          <a class="btn btn--ghost-dark" href="tel:+17605482781" data-i18n="cta.call">Call (760) 548-2781</a>
+        </div>
+      </section>
+    </div>
+
+    <nav class="wiz-legal" aria-label="Legal">
+      <a href="terms.html" data-i18n="foot.terms">Terms and conditions</a>
+      <a href="privacy.html" data-i18n="foot.privacy">Privacy policy</a>
+      <a href="accessibility.html" data-i18n="foot.a11y">Accessibility</a>
+      <span data-license-line hidden></span>
+    </nav>
+  </main>
+
+  <script src="assets/js/attribution.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/estimate.js" defer></script>
+</body>
+</html>

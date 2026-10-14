@@ -3,12 +3,14 @@
 Static website for desertgreenbuilders.com, hosted free on GitHub Pages. There's no build step: the files in this folder are the site.
 
 ```
-index.html              the landing page
+index.html              the landscape landing page
+estimate.html           landscape booking page
+roofing/                separate roofing site (not linked from the landscape pages)
 terms.html, privacy.html, accessibility.html, 404.html
 assets/js/config.js     <- the settings you edit (booking URL, license number)
 assets/js/i18n.js       Spanish text (English lives in the HTML)
 assets/js/yard.js       the scroll-built yard illustration
-assets/js/booking.js    booking form
+assets/js/estimate.js   booking pages (estimate.html, roofing/estimate.html), one question per screen
 assets/css/styles.css
 backend/                Google Apps Script for bookings (see backend/SETUP.md)
 CNAME                   tells GitHub Pages to serve desertgreenbuilders.com

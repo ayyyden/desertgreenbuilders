@@ -1,8 +1,12 @@
 /*
-  Booking form: phone verification, address autocomplete, calendar and submit.
-  Talks to the Google Apps Script backend (backend/Code.gs) at DGB_CONFIG.bookingEndpoint.
-  With no endpoint set it runs a local demo on localhost (verification code 123456),
-  and on the live site it tells people to call instead.
+  Estimate booking, one question per screen (estimate.html and roofing/estimate.html).
+  Job questions -> pick a day and time -> name, phone and address -> booked.
+
+  The page says what it's for with <form id="wizard" data-service="landscaping|roofing">.
+  Every .wiz-step before "when" is a job question; its inputs' names become the answers.
+  Radio questions move on as soon as one is tapped; checkbox questions use a Continue
+  button (.wiz-next[data-next]). Both sites post to the same booking backend
+  (DGB_CONFIG.bookingEndpoint), so they share one calendar.
 */
 (function () {
   var CFG = window.DGB_CONFIG || {};
@@ -47,7 +51,10 @@
       "when": "{date} at {time}",
       "ics.title": "Free estimate with Desert Green Builders",
       "ics.desc": "Free on-site estimate. Questions or changes: (760) 548-2781.",
-      "cal.group": "Days"
+      "cal.group": "Days",
+      "step": "Step {n} of {total}",
+      "err.pick": "Pick a day and a time to continue.",
+      "ics.title.roof": "Free roof estimate with Desert Green Builders"
     },
     es: {
       "err.name": "Escriba su nombre y apellido.",
@@ -82,7 +89,10 @@
       "when": "{date} a las {time}",
       "ics.title": "Estimado gratis con Desert Green Builders",
       "ics.desc": "Estimado gratis en su casa. Preguntas o cambios: (760) 548-2781.",
-      "cal.group": "Días"
+      "cal.group": "Días",
+      "step": "Paso {n} de {total}",
+      "err.pick": "Escoja un día y una hora para continuar.",
+      "ics.title.roof": "Estimado gratis de techo con Desert Green Builders"
     }
   };
 
@@ -95,8 +105,9 @@
   }
   function $(id) { return document.getElementById(id); }
 
-  var form = $("bookingForm");
+  var form = $("wizard");
   if (!form) return;
+  var SERVICE = form.getAttribute("data-service") || "landscaping";
   var loadedAt = Date.now();
 
   var state = {
@@ -512,7 +523,7 @@
     if (!b || b.disabled || !b.dataset.date) return;
     state.date = b.dataset.date;
     state.time = "";
-    setError("date", null);
+    setError("when", null);
     renderCalendar();
     renderSlots();
     var first = document.querySelector("#slots input:not(:disabled)");
@@ -545,7 +556,7 @@
       var input = document.createElement("input");
       input.type = "radio"; input.name = "time"; input.value = hm;
       input.checked = hm === state.time;
-      input.addEventListener("change", function () { state.time = hm; setError("time", null); });
+      input.addEventListener("change", function () { state.time = hm; setError("when", null); });
       var span = document.createElement("span");
       span.textContent = fmtTime(hm);
       label.appendChild(input); label.appendChild(span);
@@ -555,6 +566,7 @@
   }
 
   /* ---------- Validation and submit ---------- */
+  // Only the contact screen is checked here; the questions and the schedule are checked step by step.
   function validate() {
     var bad = [];
     function check(field, ok, key) { setError(field, ok ? null : key); if (!ok) bad.push(field); }
@@ -563,34 +575,38 @@
     var d = digits(phone.value);
     if (!validPhone(d)) check("phone", false, "err.phone");
     else check("phone", !state.verifyEnabled || state.verified, "err.verifyFirst");
-    check("homeowner", !!form.querySelector('input[name="homeowner"]:checked'), "err.owner");
     check("street", street.value.trim().length >= 5 && /\d/.test(street.value), "err.street");
     check("city", $("city").value.trim().length >= 2, "err.city");
     check("zip", /^\d{5}(-\d{4})?$/.test($("zip").value.trim()), "err.zip");
-    check("yard", !!form.querySelector('input[name="yard"]:checked'), "err.yard");
-    check("date", !!state.date, "err.date");
-    if (state.date) check("time", !!state.time, "err.time"); else setError("time", null);
     check("consent", $("consent").checked, "err.consent");
     return bad;
   }
 
   function focusField(f) {
-    var target = {
-      homeowner: form.querySelector('input[name="homeowner"]'),
-      yard: form.querySelector('input[name="yard"]'),
-      date: grid.querySelector(".cal__day:not([disabled])") || $("calNext"),
-      time: form.querySelector('#slots input')
-    }[f] || $(f);
+    var target = $(f);
     if (target) {
       target.focus({ preventScroll: true });
-      (target.closest(".field, .fs") || target).scrollIntoView({ block: "center", behavior: "smooth" });
+      (target.closest(".field") || target).scrollIntoView({ block: "center", behavior: "smooth" });
     }
   }
 
   form.addEventListener("change", function (e) {
-    if (e.target.name === "yard") setError("yard", null);
-    if (e.target.name === "homeowner") setError("homeowner", null);
     if (e.target.id === "consent" && e.target.checked) setError("consent", null);
+  });
+  // Clear a field's error as soon as it's fixed, instead of waiting for the next submit.
+  form.addEventListener("input", function (e) {
+    var id = e.target.id;
+    if (!state.errors[id]) return;
+    var ok = {
+      fullName: function () { return /\S+\s+\S+/.test(e.target.value.trim()); },
+      street: function () { return e.target.value.trim().length >= 5 && /\d/.test(e.target.value); },
+      city: function () { return e.target.value.trim().length >= 2; },
+      zip: function () { return /^\d{5}(-\d{4})?$/.test(e.target.value.trim()); }
+    }[id];
+    if (ok && ok()) {
+      setError(id, null);
+      if (!Object.keys(state.errors).length) showStatus(null);
+    }
   });
 
   form.addEventListener("submit", function (e) {
@@ -614,12 +630,11 @@
       state: $("state").value || "CA",
       zip: $("zip").value.trim(),
       lat: $("lat").value, lon: $("lon").value,
-      yard: form.querySelector('input[name="yard"]:checked').value,
-      services: Array.prototype.map.call(form.querySelectorAll('input[name="services"]:checked'), function (i) { return i.value; }),
       date: state.date,
       time: state.time,
       lang: lang(),
-      homeowner: form.querySelector('input[name="homeowner"]:checked').value,
+      homeowner: answers().homeowner || "",
+      service: SERVICE,
       consent: true,
       company: $("company").value,
       elapsedMs: Date.now() - loadedAt,
@@ -627,16 +642,19 @@
       // Which ad brought them here (assets/js/attribution.js, kept 30 days)
       attribution: (window.DGBAttribution && window.DGBAttribution.get()) || null
     };
+    var a = answers();
+    if (SERVICE === "roofing") payload.roof = a;
+    else { payload.yard = a.yard; payload.services = a.services || []; }
     var btn = $("submitBtn");
     setBusy(btn, true, "busy.submit");
     api("POST", payload).then(function (res) {
       setBusy(btn, false);
       if (res.ok) return done(payload);
       if (res.error === "slot_taken") {
-        showStatus("err.taken");
         state.time = "";
         loadAvailability();
-        focusField("time");
+        show(stepIndex("when"), true);
+        setError("when", "err.taken");
       } else if (res.error === "not_verified") {
         state.verified = false; state.token = "";
         markVerified(false);
@@ -667,11 +685,13 @@
     state.booked = { date: p.date, time: p.time };
     renderSuccess();
     form.hidden = true;
+    $("wizTop").hidden = true;
+    try { sessionStorage.removeItem(STORE); } catch (e) {}
     var ok = $("bookingSuccess");
     ok.hidden = false;
     ok.classList.add("is-shown");
     ok.focus({ preventScroll: true });
-    ok.scrollIntoView({ block: "center", behavior: "smooth" });
+    window.scrollTo({ top: 0 });
   }
   function renderSuccess() {
     if (!state.booked) return;
@@ -704,14 +724,14 @@
       "DTSTAMP:" + icsStamp(new Date()),
       "DTSTART:" + icsStamp(start),
       "DTEND:" + icsStamp(end),
-      "SUMMARY:" + esc(t("ics.title")),
+      "SUMMARY:" + esc(t(SERVICE === "roofing" ? "ics.title.roof" : "ics.title")),
       "DESCRIPTION:" + esc(t("ics.desc")),
       "LOCATION:" + esc(addr),
       "END:VEVENT", "END:VCALENDAR"
     ].join("\r\n");
     var url = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
     var a = document.createElement("a");
-    a.href = url; a.download = "desert-green-builders-estimate.ics";
+    a.href = url; a.download = SERVICE === "roofing" ? "desert-green-builders-roof-estimate.ics" : "desert-green-builders-estimate.ics";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
   });
@@ -722,6 +742,7 @@
     renderSlots();
     rerenderErrors();
     renderSuccess();
+    renderCount();
     if (state.resendLeft > 0 || !$("codeRow").hidden) {
       var b = $("resendCode");
       b.textContent = state.resendLeft > 0 ? t("resendIn", { s: state.resendLeft }) : t("resend");
@@ -754,5 +775,131 @@
     });
   }
 
+  /* ---------- Steps ---------- */
+  var steps = Array.prototype.slice.call(form.querySelectorAll(".wiz-step"));
+  var STORE = "dgb-estimate-" + SERVICE;
+  // job-question steps (everything before the schedule) and the input names they hold
+  var questionSteps = steps.slice(0, steps.findIndex(function (s) { return s.getAttribute("data-step") === "when"; }));
+  var QUESTIONS = [];
+  questionSteps.forEach(function (s) {
+    s.querySelectorAll(".opt input").forEach(function (i) { if (QUESTIONS.indexOf(i.name) < 0) QUESTIONS.push(i.name); });
+  });
+  var current = 0, advanceTimer = null;
+
+  function stepIndex(name) { return steps.findIndex(function (s) { return s.getAttribute("data-step") === name; }); }
+  function answers() {
+    var a = {};
+    QUESTIONS.forEach(function (q) {
+      var inputs = form.querySelectorAll('input[name="' + q + '"]');
+      if (inputs[0] && inputs[0].type === "checkbox") {
+        a[q] = Array.prototype.filter.call(inputs, function (i) { return i.checked; }).map(function (i) { return i.value; });
+      } else {
+        var c = form.querySelector('input[name="' + q + '"]:checked');
+        if (c) a[q] = c.value;
+      }
+    });
+    return a;
+  }
+  function saveAnswers() {
+    var a = answers();
+    // an unticked checkbox question only counts as answered after Continue
+    Object.keys(a).forEach(function (k) { if (Array.isArray(a[k]) && !a[k].length && !continued[k]) delete a[k]; });
+    try { sessionStorage.setItem(STORE, JSON.stringify(a)); } catch (e) {}
+  }
+  // Brings back answers from earlier in this visit (e.g. after a refresh); returns the step to open.
+  function restoreAnswers() {
+    var a = {};
+    try { a = JSON.parse(sessionStorage.getItem(STORE) || "{}") || {}; } catch (e) {}
+    Object.keys(a).forEach(function (q) {
+      form.querySelectorAll('input[name="' + q + '"]').forEach(function (i) {
+        i.checked = Array.isArray(a[q]) ? a[q].indexOf(i.value) >= 0 : i.value === a[q];
+      });
+    });
+    // open the first question not answered yet (a checkbox question counts once Continue was pressed)
+    for (var i = 0; i < questionSteps.length; i++) {
+      var name = questionSteps[i].querySelector(".opt input").name;
+      if (a[name] === undefined || a[name] === "") return i;
+    }
+    return stepIndex("when");
+  }
+  var continued = {};   // checkbox questions the visitor moved past, even with nothing ticked
+  function renderCount() {
+    $("wizCount").textContent = t("step", { n: current + 1, total: steps.length });
+  }
+
+  function show(n, push) {
+    n = Math.max(0, Math.min(steps.length - 1, n));
+    var back = n < current;
+    steps.forEach(function (s, i) { s.hidden = i !== n; });
+    var step = steps[n];
+    step.classList.remove("is-in", "is-back");
+    void step.offsetWidth;                      // restart the slide-in
+    step.classList.add(back ? "is-back" : "is-in");
+    current = n;
+    $("wizBack").disabled = n === 0;
+    $("wizBar").style.transform = "scaleX(" + ((n + 1) / steps.length).toFixed(3) + ")";
+    renderCount();
+    if (push) history.pushState({ wiz: n }, "");
+    window.scrollTo({ top: 0 });
+    var h = step.querySelector(".wiz-q");
+    if (h) h.focus({ preventScroll: true });
+  }
+  function next() { show(current + 1, true); }
+
+  // Tapping an answer moves on. Arrow keys only change the answer; Enter or Space moves on.
+  form.addEventListener("click", function (e) {
+    var input = e.target.closest(".opt input");
+    if (!input || QUESTIONS.indexOf(input.name) < 0) return;
+    saveAnswers();
+    if (input.type !== "radio") return;         // checkbox questions wait for Continue
+    if (e.detail === 0) return;                 // click generated by the keyboard
+    clearTimeout(advanceTimer);
+    advanceTimer = setTimeout(next, 220);       // let them see the choice light up
+  });
+  form.addEventListener("keydown", function (e) {
+    var input = e.target.closest && e.target.closest(".opt input");
+    if (!input || input.type !== "radio" || (e.key !== "Enter" && e.key !== " ")) return;
+    e.preventDefault();
+    input.checked = true;
+    saveAnswers();
+    next();
+  });
+  form.querySelectorAll(".wiz-next[data-next]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var step = b.closest(".wiz-step");
+      step.querySelectorAll(".opt input").forEach(function (i) { continued[i.name] = true; });
+      saveAnswers();
+      next();
+    });
+  });
+
+  $("whenNext").addEventListener("click", function () {
+    if (!state.date || !state.time) { setError("when", "err.pick"); return; }
+    setError("when", null);
+    next();
+  });
+
+  // The on-screen Back button and the phone's back button both go to the previous question.
+  $("wizBack").addEventListener("click", function () {
+    if (history.state && history.state.wiz > 0) history.back();
+    else show(current - 1, false);
+  });
+  window.addEventListener("popstate", function (e) {
+    if (!$("bookingSuccess").hidden) return;
+    show(e.state && typeof e.state.wiz === "number" ? e.state.wiz : 0, false);
+  });
+
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  try {   // checkbox questions saved earlier this visit were already passed
+    var saved = JSON.parse(sessionStorage.getItem(STORE) || "{}") || {};
+    Object.keys(saved).forEach(function (k) { if (Array.isArray(saved[k])) continued[k] = true; });
+  } catch (e) {}
+  var startAt = restoreAnswers();
+  history.replaceState({ wiz: 0 }, "");
+  for (var si = 1; si <= startAt; si++) history.pushState({ wiz: si }, "");
+  current = startAt;
+  show(startAt, false);
+
   loadAvailability();
 })();
+

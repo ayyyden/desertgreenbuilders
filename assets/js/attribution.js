@@ -4,7 +4,7 @@
  * fbclid from the landing URL and keeps them for 30 days in a first-party
  * cookie and localStorage, so they survive navigation and a later return
  * visit. A new visit with tags replaces the old ones. The booking form sends
- * them with the booking (booking.js), and the CRM ties the lead to the exact
+ * them with the booking (estimate.js), and the CRM ties the lead to the exact
  * Meta campaign / ad set / ad.
  *
  * Meta ads set:  utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.id}}

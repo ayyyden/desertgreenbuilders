@@ -531,6 +531,16 @@ button { font: inherit; }
 .success__when { margin: 10px 0; font-size: 1.2rem; font-weight: 750; color: var(--green); }
 .success__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 22px; }
 
+/* ---------- Booking banner (links to the estimate page) ---------- */
+.cta-band { background: var(--green-50); padding: 64px 0; }
+.cta-band__inner { display: grid; gap: 22px; }
+.cta-band__title { font-size: clamp(2rem, 6.4vw, 3.4rem); font-weight: 850; font-stretch: 112%; letter-spacing: -0.02em; }
+.cta-band__lede { margin-top: 10px; font-size: 1.12rem; color: var(--muted); max-width: 34rem; }
+@media (min-width: 900px) {
+  .cta-band { padding: 88px 0; }
+  .cta-band__inner { grid-template-columns: 1fr auto; align-items: center; }
+}
+
 /* ---------- FAQ ---------- */
 .faq__wrap { max-width: 860px; }
 .faq__list { margin-top: 30px; border-top: 2px solid var(--sand-200); }

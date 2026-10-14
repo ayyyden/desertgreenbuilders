@@ -55,9 +55,6 @@ window.DGB_ES_EXTRA = {
   "r.faq.5.a": "Depende del tamaño del techo y de lo que haya debajo del viejo. Le damos un tiempo estimado junto con su estimado.",
   "r.close.title": "Arreglemos bien su techo.",
 
-  "w.back": "Atrás",
-  "w.continue": "Continuar",
-  "w.notsure": "No estoy seguro",
   "w.need.q": "¿Qué necesita que le hagamos?",
   "w.need.leak": "Reparar una gotera",
   "w.need.replace": "Techo nuevo",
@@ -74,11 +71,5 @@ window.DGB_ES_EXTRA = {
   "w.stories.1": "1 piso",
   "w.stories.2": "2 pisos",
   "w.stories.3": "3 o más",
-  "w.contact.q": "Último paso: ¿cómo le contactamos?",
-  "w.street": "Dirección de la casa",
-  "w.submit": "Agendar mi estimado de techo gratis",
-  "w.ok.title": "¡Listo, ya tiene su cita!",
-  "w.ok.see": "Le vemos el",
-  "w.ok.owners": "Por favor asegúrese de que todos los dueños de la casa estén presentes en la cita.",
-  "w.ok.call": "Le llamaremos antes de la visita para confirmar. ¿Necesita cambiar algo? Solo llámenos."
+  "w.submit": "Agendar mi estimado de techo gratis"
 };
