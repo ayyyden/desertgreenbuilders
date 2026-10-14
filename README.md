@@ -18,6 +18,7 @@ CNAME                   tells GitHub Pages to serve desertgreenbuilders.com
 
 ## Before going live
 
+0. **After changing any JS or CSS**, run `py tools/bump_version.py` before committing, so visitors get the new files right away.
 1. **Booking backend.** Follow [backend/SETUP.md](backend/SETUP.md), then paste the web app URL into `assets/js/config.js`.
 2. **License number.** Put your CSLB license number in `licenseNumber` in `assets/js/config.js`. California requires it on all advertising, including websites.
 
