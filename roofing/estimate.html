@@ -180,7 +180,7 @@
 
           <div class="field">
             <label for="fullName" data-i18n="f.name">Full name</label>
-            <input id="fullName" name="fullName" type="text" autocomplete="name" required maxlength="80">
+            <input id="fullName" name="fullName" type="text" autocomplete="name" required maxlength="80" data-i18n-attr="placeholder:f.name" placeholder="Full name">
             <p class="field__err" id="fullName-err"></p>
           </div>
 
@@ -195,7 +195,7 @@
             <div class="code-row" id="codeRow" hidden>
               <label for="code" data-i18n="f.code">Enter the 6-digit code</label>
               <div class="phone-row">
-                <input id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}">
+                <input id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" data-i18n-attr="placeholder:f.codePh" placeholder="6-digit code">
                 <button class="btn btn--dark btn--sm" type="button" id="verifyCode" data-i18n="f.verify">Verify</button>
               </div>
               <button class="linkish" type="button" id="resendCode" disabled></button>
@@ -219,17 +219,17 @@
           </div>
           <div class="field-grid">
             <div class="field">
-              <label for="unit" data-i18n="f.unit">Apt or unit (optional)</label>
-              <input id="unit" name="unit" type="text" autocomplete="address-line2" maxlength="20">
+              <label for="unit"><span class="lbl-long" data-i18n="f.unit">Apt or unit (optional)</span><span class="lbl-short" data-i18n="f.unitShort">Apt/unit</span></label>
+              <input id="unit" name="unit" type="text" autocomplete="address-line2" maxlength="20" data-i18n-attr="placeholder:f.unitShort" placeholder="Apt/unit">
             </div>
             <div class="field">
               <label for="city" data-i18n="f.city">City</label>
-              <input id="city" name="city" type="text" autocomplete="address-level2" required maxlength="60">
+              <input id="city" name="city" type="text" autocomplete="address-level2" required maxlength="60" data-i18n-attr="placeholder:f.city" placeholder="City">
               <p class="field__err" id="city-err"></p>
             </div>
             <div class="field">
               <label for="zip" data-i18n="f.zip">ZIP code</label>
-              <input id="zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" required maxlength="10">
+              <input id="zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" required maxlength="10" data-i18n-attr="placeholder:f.zip" placeholder="ZIP code">
               <p class="field__err" id="zip-err"></p>
             </div>
           </div>
