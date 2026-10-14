@@ -704,6 +704,7 @@
     renderSuccess();
     form.hidden = true;
     $("wizTop").hidden = true;
+    document.body.setAttribute("data-wiz-step", "done");
     try { sessionStorage.removeItem(STORE); } catch (e) {}
     var ok = $("bookingSuccess");
     ok.hidden = false;
@@ -866,6 +867,7 @@
     void step.offsetWidth;                      // restart the slide-in
     step.classList.add(back ? "is-back" : "is-in");
     current = n;
+    document.body.setAttribute("data-wiz-step", step.getAttribute("data-step"));   // CSS: footer links only on the ZIP screen
     $("wizBack").disabled = n === 0;
     $("wizBar").style.transform = "scaleX(" + ((n + 1) / steps.length).toFixed(3) + ")";
     renderCount();
@@ -890,6 +892,7 @@
     renderStop();
     form.hidden = true;
     $("wizTop").hidden = true;
+    document.body.setAttribute("data-wiz-step", "stop");
     var box = $("wizStop");
     box.hidden = false;
     history.pushState({ wiz: current, stop: kind }, "");
@@ -980,6 +983,7 @@
   function showStopFromHistory(kind) {   // forward button back onto a "sorry" screen
     stopKind = kind; renderStop();
     form.hidden = true; $("wizTop").hidden = true; $("wizStop").hidden = false;
+    document.body.setAttribute("data-wiz-step", "stop");
   }
 
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
